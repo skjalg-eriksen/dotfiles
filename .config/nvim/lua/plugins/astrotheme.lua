@@ -8,7 +8,7 @@ return {
       dark = "astrodark",
     },
     style = {
-      transparent = false, -- Bool value, toggles transparency.
+      transparent = true, -- Bool value, toggles transparency.
       inactive = true, -- Bool value, toggles inactive window color.
       float = true, -- Bool value, toggles floating windows background colors.
       neotree = true, -- Bool value, toggles neo-trees background color.
