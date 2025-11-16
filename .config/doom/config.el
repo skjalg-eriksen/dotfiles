@@ -73,14 +73,12 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-
 (projectile-discover-projects-in-directory "~/Source/Repos" 1)
 
-;; automatically set ts or tsx mode when opening typescript files
-;; (add-to-list 'auto-mode-alist '("\\.ts\\'" . typescript-ts-mode))
-;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-ts-mode))
-;; (add-to-list 'auto-mode-alist '("\\.puml\\'". plantuml-mode))
-;; (add-to-list 'auto-mode-alist '("\\.cs\\'". csharp-mode))
+(after! persp-mode
+  (setq persp-state-default-file "~/.emacs.d/workspaces")
+  (setq persp-auto-save-fname "autosave")
+  (setq persp-auto-resume-time 1))  ; auto-restore on startup
 
 ;; Start lsp-mode automatically for prog-mode derivatives
 (add-hook 'prog-mode-hook #'lsp-deferred)
@@ -90,4 +88,4 @@ menu-bar-mode -1
 
 ;; my modules, loaded relative to this file
 (load! "lisp/keybinds.el")
-;; (load! "lisp/colors.el")
+(load! "lisp/colors.el")
