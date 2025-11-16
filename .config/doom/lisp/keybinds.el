@@ -1,3 +1,4 @@
+;; $DOOMDIR/lisp/keybinds.el -*- lexical-binding: t; -*-
 ;; remove global C-b binding as it's used for tmux
 (global-unset-key (kbd "C-b"))
 
@@ -13,18 +14,26 @@
       :n "s-/" #'comment-line
       :v "s-/" #'comment-line
 
+      ;; rebind from todo to tabs
+      ;; :n "] t" #'centaur-tabs-forward
+      ;; :n "[ t" #'centaur-tabs-backward
+
+      ;; rebind from buffer to tabs
+      :n "] b" #'centaur-tabs-forward
+      :n "[ b" #'centaur-tabs-backward
       )
 
 
-;; Move to first non-blank (like ^) and last non-blank (like $) with H/L in Evil
 (after! evil
+  ;; Move to first non-blank (like ^) and last non-blank (like $) with H/L in Evil
   (define-key evil-normal-state-map (kbd "H") #'evil-first-non-blank)
   (define-key evil-visual-state-map  (kbd "H") #'evil-first-non-blank)
   (define-key evil-operator-state-map (kbd "H") #'evil-first-non-blank)
 
   (define-key evil-normal-state-map (kbd "L") #'evil-end-of-line)
   (define-key evil-visual-state-map  (kbd "L") #'evil-end-of-line)
-  (define-key evil-operator-state-map (kbd "L") #'evil-end-of-line))
+  (define-key evil-operator-state-map (kbd "L") #'evil-end-of-line)
+  )
 
 
 (defun my/evil-shift-right-keep-visual ()
