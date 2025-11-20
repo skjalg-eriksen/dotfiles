@@ -86,6 +86,11 @@
 menu-bar-mode -1
 (setq scroll-lock-mode-text "scroll-lock-mode enabled")
 
+(xterm-mouse-mode 1)
+
+;; default directory
+(setq default-directory "~/")
+
 ;; my modules, loaded relative to this file
 (load! "lisp/keybinds.el")
 (load! "lisp/colors.el")
