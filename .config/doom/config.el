@@ -94,3 +94,4 @@ menu-bar-mode -1
 ;; my modules, loaded relative to this file
 (load! "lisp/keybinds.el")
 (load! "lisp/colors.el")
+(load! "lisp/clipboard.el")
