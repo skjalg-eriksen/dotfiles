@@ -19,17 +19,23 @@ DOTFILES = Path(__file__).resolve().parent
 IGNORE = DOTFILES / ".dotsignore"
 CONFIG_DIR = DOTFILES / ".config"
 
+# .dotsignore
+IGNORE_PATTERNS: List[Pattern] = []
 
-def load_ignore() -> List[Pattern]:
-    patterns: List[Pattern] = []
-    if IGNORE.exists():
+
+def load_ignore():
+    """READS .dotsignore into global IGNORE_PATTERNS variable"""
+    if IGNORE.exists() and len(IGNORE_PATTERNS) == 0:
         for line in IGNORE.read_text().splitlines():
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            patterns.append(re_compile(line))
+            IGNORE_PATTERNS.append(re_compile(line))
+    return IGNORE_PATTERNS
 
-    return patterns
+
+def is_ignored(path: str):
+    return any(regex.search(path) for regex in load_ignore())
 
 
 def is_enabled(source_root: Path) -> bool:
@@ -55,10 +61,6 @@ def itr_dotfiles() -> Iterator[Tuple[bool, Path]]:
     - All other files in modules are treated as file-level links.
     - Any paths listed in `.ignore` should be excluded from the result.
     """
-    ignore_patterns = load_ignore()
-
-    def is_ignored(path: str):
-        return any(regex.search(path) for regex in ignore_patterns)
 
     for root, _, files in walk(DOTFILES, topdown=True):
         if is_ignored(root):
@@ -139,12 +141,16 @@ def enable(relative_path: str):
         print(f"config {relative_path} is already enabled")
         return
 
+    if is_ignored(str(source_root.relative_to(DOTFILES))):
+        print(f"confing {relative_path} is in .dotsignore")
+        return
+
     if target.exists():
         target_bak = target.with_suffix(".bak")
         assert (
             not target_bak.exists()
         ), "Cant backup file as .bak suffixed file already exists"
-        target.rename(f"{target}.bak")
+        target.rename(target_bak)
 
     target.symlink_to(source_root)
 
