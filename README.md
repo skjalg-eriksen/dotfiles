@@ -17,10 +17,10 @@ This project is intentionally lightweight — no external dependencies except Py
 
 # 🚀 Installation
 
-From inside the dotfiles repository, symlink the script:
+From inside the dotfiles repository, symlink `dots.py` using its **absolute path**:
 
 ```sh
-ln -s ./dots.py ~/.local/bin/dots
+ln -s "$(pwd)/dots.py" ~/.local/bin/dots
 ```
 
 Ensure `~/.local/bin` is in your `$PATH`.
@@ -35,7 +35,7 @@ Ensure `~/.local/bin` is in your `$PATH`.
 dots --list
 ```
 
-Example output:
+Example:
 
 ```
 [ENABLED]   .tmux.conf
@@ -51,8 +51,7 @@ Example output:
 dots --enable .tmux.conf
 ```
 
-This will:
-
+This will:  
 - back up any existing file in your home directory  
 - create the symlink to the config inside your dotfile repo  
 
@@ -64,8 +63,7 @@ This will:
 dots --disable .tmux.conf
 ```
 
-This will:
-
+This will:  
 - remove the symlink  
 - restore any `*.bak` backup file  
 
@@ -73,13 +71,13 @@ This will:
 
 ## 🎛️ TUI Mode
 
-Calling `dots` with **no arguments** launches the interactive TUI:
+Running `dots` with **no arguments** launches the interactive TUI:
 
 ```sh
 dots
 ```
 
-The TUI supports:
+TUI features:
 
 - interactive checklist  
 - toggle with `<enter>`  
@@ -90,17 +88,17 @@ The TUI supports:
 
 # 📁 How Dotfiles Are Detected
 
-The tool walks the repository and treats files as configuration items.
+The tool walks the repository and treats paths as configuration items.
 
 ### Folder-level configs
 
-Any directory inside:
+Directories under:
 
 ```
 ./.config/*
 ```
 
-is installed as a **directory symlink**, e.g.:
+are installed as **directory symlinks**, e.g.:
 
 ```
 ~/.config/nvim → <repo>/.config/nvim
@@ -118,34 +116,30 @@ Everything else is installed as individual file symlinks, e.g.:
 
 # 🚫 Ignoring files: `.dotsignore`
 
-The file:
-
-```
-./.dotsignore
-```
-
-contains **regular expressions**, one per line.
+Place a `.dotsignore` file in the repository containing **regex patterns**, one per line.
 
 Example:
 
 ```
-# ignore tool metadata
+# ignore the manager itself
 dots.py
 \.dotsignore
 
-# ignore private patterns
+# ignore custom private files
 private/.*
 ```
 
-Any path matching any regex is skipped during scanning.
+Paths matching any pattern are skipped during scanning.
 
 ---
 
 # 🔍 Enabled/Disabled Detection
 
-A configuration is considered **enabled** if:
+A configuration is considered **enabled** when:
 
-- a symlink exists at the expected location in your home directory  
-- that symlink resolves back to the correct file inside the repository  
+- a symlink exists at the expected location in your home directory, **and**
+- that symlink resolves back to the correct file inside the repository
+
+The filesystem is the single source of truth; no cache file is required.
 
 ---
