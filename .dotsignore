@@ -1,4 +1,8 @@
+# git files
 .git
-dots.py
-install.py
+.gitignore
+
+# dots.py files
 .dotsignore
+dots.py
+README.md

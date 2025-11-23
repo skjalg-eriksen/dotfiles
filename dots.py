@@ -9,7 +9,7 @@ from os import walk
 from re import compile as re_compile
 
 # dots.py
-# dots -> tui with interactive checklist, [q] to quit, [x] to execute, [enter] to toggle config
+# dots -> tui with interactive checklist, [q] to quit, [enter] to toggle config, [/] to fuzzy search
 # dots --list -> lists active configs
 # dots --enable <name>
 # dots --disable <name>
@@ -134,11 +134,16 @@ def enable(relative_path: str):
     assert source_root.exists(), "config not found"
 
     target = HOME / source_root.relative_to(DOTFILES)
+
     if is_enabled(source_root):
         print(f"config {relative_path} is already enabled")
         return
 
     if target.exists():
+        target_bak = target.with_suffix(".bak")
+        assert (
+            not target_bak.exists()
+        ), "Cant backup file as .bak suffixed file already exists"
         target.rename(f"{target}.bak")
 
     target.symlink_to(source_root)
