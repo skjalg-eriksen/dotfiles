@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
-from re import Pattern
-from sys import argv
-from pathlib import Path
-from typing import List, Tuple, Iterator
+from curses import A_REVERSE, KEY_DOWN, KEY_UP, curs_set, window, wrapper
+from enum import IntEnum
 from os import walk
+from pathlib import Path
+from re import Pattern
 from re import compile as re_compile
+from sys import argv
+from typing import Iterator, List, Tuple
 
 # dots.py
 # dots -> tui with interactive checklist, [q] to quit, [enter] to toggle config, [/] to fuzzy search
@@ -23,7 +25,7 @@ CONFIG_DIR = DOTFILES / ".config"
 IGNORE_PATTERNS: List[Pattern] = []
 
 
-def load_ignore():
+def load_ignore() -> List[Pattern]:
     """READS .dotsignore into global IGNORE_PATTERNS variable"""
     if IGNORE.exists() and len(IGNORE_PATTERNS) == 0:
         for line in IGNORE.read_text().splitlines():
@@ -155,9 +157,83 @@ def enable(relative_path: str):
     target.symlink_to(source_root)
 
 
+class Key(IntEnum):
+    q = ord("q")
+    Q = ord("Q")
+    k = ord("k")
+    j = ord("j")
+    SLASH = ord("/")
+
+    ENTER = 10
+    ENTER2 = 13
+
+    # curses navigation
+    UP = KEY_UP
+    DOWN = KEY_DOWN
+
+
+def tui(std: window):
+    curs_set(0)
+
+    slash_search: Pattern | None = None
+    selected = 0
+
+    while True:
+        std.clear()
+        std.addstr(0, 0, " Toggle dotfiles (Enter = toggle, q = quit)")
+
+        configs = [
+            (enabled, path)
+            for enabled, path in itr_dotfiles()
+            if slash_search is None or slash_search.search(str(path)) is not None
+        ]
+        configs = sorted(configs)
+
+        # Clamp selection if list shrinks
+        if selected >= len(configs):
+            selected = max(0, len(configs) - 1)
+
+        for idx, (enabled, path) in enumerate(configs):
+            name = str(path.relative_to(DOTFILES))
+            status = "[X]" if enabled else "[ ]"
+
+            if idx == selected:
+                std.addstr(idx + 2, 0, f"> {status} {name}", A_REVERSE)
+            else:
+                std.addstr(idx + 2, 0, f"  {status} {name}")
+
+        key = std.getch()
+
+        match key:
+            case Key.UP | Key.k:
+                if configs:
+                    selected = (selected - 1) % len(configs)
+
+            case Key.DOWN | Key.j:
+                if configs:
+                    selected = (selected + 1) % len(configs)
+
+            case Key.ENTER | Key.ENTER2:
+                if configs:
+                    enabled, path = configs[selected]
+                    if enabled:
+                        disable(str(path))
+                    else:
+                        enable(str(path))
+
+            case Key.SLASH:
+                # todo implement search/filter
+                pass
+
+            case Key.q | Key.Q:
+                return
+            case _:
+                pass
+
+
 def main():
     if len(argv) == 1:
-        print("launch tui")
+        wrapper(tui)
         return
 
     parser = ArgumentParser()
@@ -176,8 +252,8 @@ def main():
 
     if args.list:
         for enabled, path in itr_dotfiles():
-            status = " [ENABLED] " if enabled else "[DISABLED] "
-            print(f"{status}{path.relative_to(DOTFILES)}")
+            status = "[X]" if enabled else "[ ]"
+            print(f"{status}\t{path.relative_to(DOTFILES)}")
         return
 
     if args.enable:
