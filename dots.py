@@ -179,7 +179,6 @@ def tui(std: window):
     selected = 0
 
     while True:
-        std.clear()
         std.addstr(0, 0, " Toggle dotfiles (Enter = toggle, q = quit)")
 
         configs = [
