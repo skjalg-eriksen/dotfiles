@@ -240,8 +240,6 @@ def tui(window: Window):
     selected_before_slash = 0
     filter_mode = -1
 
-    _ = tui_render_selection(window, selected, slash_search)
-
     while True:
         height, _ = window.getmaxyx()
         window.addstr(0, 0, " Toggle dotfiles (Enter = toggle, q = quit, / = filter)")
