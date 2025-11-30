@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
-from curses import A_REVERSE, KEY_DOWN, KEY_UP, curs_set, window, wrapper
+from curses import (
+    A_REVERSE,
+    KEY_BACKSPACE,
+    KEY_DOWN,
+    KEY_UP,
+    curs_set,
+    window as Window,
+    wrapper,
+)
 from enum import IntEnum
 from os import walk
 from pathlib import Path
@@ -108,7 +116,7 @@ def disable(relative_path: str):
     if not is_enabled(source_root):
         print("config not enabled")
         return
-    assert target.is_symlink, "an enabled config must be a symlink"
+    assert target.is_symlink(), "an enabled config must be a symlink"
 
     target.unlink()
     target_bak = target.with_suffix(".bak")
@@ -163,45 +171,113 @@ class Key(IntEnum):
     k = ord("k")
     j = ord("j")
     SLASH = ord("/")
+    COLON = ord(":")
+    ESC = 27
 
     ENTER = 10
     ENTER2 = 13
+
+    BACKSPACE = KEY_BACKSPACE
+    BACKSPACE2 = 127
+    BACKSPACE3 = 8
 
     # curses navigation
     UP = KEY_UP
     DOWN = KEY_DOWN
 
 
-def tui(std: window):
-    curs_set(0)
+def tui_render_selection(
+    window: Window, selected: int, slash_search: Pattern | None
+) -> List[Tuple[bool, Path]]:
+    configs = [
+        (enabled, path)
+        for enabled, path in itr_dotfiles()
+        if slash_search is None or slash_search.search(str(path)) is not None
+    ]
+    configs.sort(key=lambda x: x[0])
+    height, _ = window.getmaxyx()
+
+    # clear line 1 to height - 2
+    for y in range(1, height - 2):
+        window.move(y, 0)
+        window.clrtoeol()
+
+    # Clamp selection if list shrinks
+    if selected >= len(configs):
+        selected = max(0, len(configs) - 1)
+
+    for idx, (enabled, path) in enumerate(configs):
+        name = str(path.relative_to(DOTFILES))
+        status = "[X]" if enabled else "[ ]"
+
+        if idx == selected:
+            window.addstr(idx + 2, 0, f"> {status} {name}", A_REVERSE)
+        else:
+            window.addstr(idx + 2, 0, f"  {status} {name}")
+    window.refresh()
+    return configs
+
+
+def is_backspace_key(key: int):
+    return key in (Key.BACKSPACE, Key.BACKSPACE2, Key.BACKSPACE3)
+
+
+def is_valid_pattern_key(key: int):
+    if is_backspace_key(key):
+        return True
+    if key in (Key.UP, Key.DOWN):
+        return False
+    if 32 <= key <= 126:
+        return True
+    return False
+
+
+def tui(window: Window):
+    curs_set(0)  # no cursor
 
     slash_search: Pattern | None = None
     selected = 0
+    selected_before_slash = 0
+    filter_mode = -1
+
+    _ = tui_render_selection(window, selected, slash_search)
 
     while True:
-        std.addstr(0, 0, " Toggle dotfiles (Enter = toggle, q = quit)")
+        height, _ = window.getmaxyx()
+        window.addstr(0, 0, " Toggle dotfiles (Enter = toggle, q = quit, / = filter)")
 
-        configs = [
-            (enabled, path)
-            for enabled, path in itr_dotfiles()
-            if slash_search is None or slash_search.search(str(path)) is not None
-        ]
-        configs = sorted(configs)
+        configs = tui_render_selection(window, selected, slash_search)
 
-        # Clamp selection if list shrinks
-        if selected >= len(configs):
-            selected = max(0, len(configs) - 1)
+        key = window.getch()
 
-        for idx, (enabled, path) in enumerate(configs):
-            name = str(path.relative_to(DOTFILES))
-            status = "[X]" if enabled else "[ ]"
+        # exit filter mode
+        if selected == filter_mode and key in (Key.ENTER, Key.ENTER2, Key.ESC):
+            selected = selected_before_slash
+            key = 0
 
-            if idx == selected:
-                std.addstr(idx + 2, 0, f"> {status} {name}", A_REVERSE)
+        configs = tui_render_selection(window, selected, slash_search)
+
+        # filter mode
+        if selected == filter_mode and is_valid_pattern_key:
+            current = str(slash_search.pattern) if slash_search is not None else ""
+            if is_backspace_key(key):
+                current = current[:-1]
+                slash_search = re_compile(current)
             else:
-                std.addstr(idx + 2, 0, f"  {status} {name}")
+                slash_search = re_compile(
+                    current + chr(key)
+                )  # compile pattern with re module
 
-        key = std.getch()
+        window.move(height - 1, 0)
+        window.clrtoeol()
+        if slash_search is not None:
+            block = "█" if selected == filter_mode else ""
+            try:
+                window.addstr(
+                    height - 1, 0, f":{slash_search.pattern}{block}"
+                )  # display filter
+            except Exception:
+                pass
 
         match key:
             case Key.UP | Key.k:
@@ -213,16 +289,19 @@ def tui(std: window):
                     selected = (selected + 1) % len(configs)
 
             case Key.ENTER | Key.ENTER2:
-                if configs:
+                if selected < len(configs) and selected >= 0:
                     enabled, path = configs[selected]
                     if enabled:
                         disable(str(path))
                     else:
                         enable(str(path))
 
-            case Key.SLASH:
-                # todo implement search/filter
-                pass
+            case Key.SLASH | Key.COLON:
+                current = slash_search.pattern if slash_search is not None else ""
+                window.addstr(height - 1, 0, f":{current}█")  # display filter
+                selected_before_slash = selected
+                selected = filter_mode  # select none
+                continue
 
             case Key.q | Key.Q:
                 return
@@ -252,7 +331,7 @@ def main():
     if args.list:
         for enabled, path in itr_dotfiles():
             status = "[X]" if enabled else "[ ]"
-            print(f"{status}\t{path.relative_to(DOTFILES)}")
+            print(f"\t{status} {path.relative_to(DOTFILES)}")
         return
 
     if args.enable:
