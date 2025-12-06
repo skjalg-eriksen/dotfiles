@@ -95,3 +95,6 @@ menu-bar-mode -1
 (load! "lisp/keybinds.el")
 (load! "lisp/colors.el")
 ;; (load! "lisp/clipboard.el")
+
+(setq which-key-idle-delay 0.3)    ;; default is 1.0s — try 0.3s or even 0.1s
+(setq which-key-idle-secondary-delay 0.05)
