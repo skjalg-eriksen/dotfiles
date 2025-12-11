@@ -28,7 +28,9 @@
 
 (after! evil
 
+  ;; EXIT INSERT/VISUAL MODE Ctrl + c
   (define-key evil-insert-state-map (kbd "C-c") 'evil-normal-state)
+
   ;; NORMAL MODE
   (define-key evil-normal-state-map (kbd "H") #'evil-first-non-blank)
   (define-key evil-normal-state-map (kbd "L") #'evil-end-of-line)
