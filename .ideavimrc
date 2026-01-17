@@ -1,0 +1,167 @@
+" .ideavimrc is a configuration file for IdeaVim plugin. It uses
+"   the same commands as the original .vimrc configuration.
+" You can find a list of commands here: https://jb.gg/h38q75
+" Find more examples here: https://jb.gg/share-ideavimrc
+set ignorecase
+set smartcase
+set guicursor
+set showmode
+
+ " -- Suggested options --
+" Show a few lines of context around the cursor. Note that this makes the
+" text scroll if you mouse-click near the start or end of the window.
+set scrolloff=5
+
+" Do incremental searching.
+set incsearch
+
+" Don't use Ex mode, use Q for formatting.
+map Q gq
+
+" --- Enable IdeaVim plugins https://jb.gg/ideavim-plugins
+
+" Highlight copied text
+Plug 'machakann/vim-highlightedyank'
+" Commentary plugin
+Plug 'tpope/vim-commentary'
+autocmd FileType csharp,c,cpp,java setlocal commentstring=//\ %s
+
+Plug 'preservim/nerdtree'
+Plug 'tpope/vim-surround'
+Plug 'dbakker/vim-paragraph-motion'
+set which-key
+
+"nmap <C-n> :NextHighlight<CR>
+"nmap <C-p> :PreviousHighlight<CR>
+"map <]-d> :NextHighlight<CR>
+"map <[-d> :PreviousHighlight<CR>
+
+:command Delete rm % 
+
+""nnoremap ]] }
+"" nnoremap [[ {
+
+"" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
+"" Map \r to the Reformat Code action
+"map \r <Action>(ReformatCode)
+
+"" Map <leader>d to start debug
+"map <leader>d <Action>(Debug)
+
+"" Map \b to toggle the breakpoint on the current line
+"map \b <Action>(ToggleLineBreakpoint)
+map <Space>q :bd<CR>
+
+
+" Map Shift + Arrow keys to normal arrow key movement in normal mode
+nnoremap <S-Left> h
+nnoremap <S-Right> l
+nnoremap <S-Up> k
+nnoremap <S-Down> j
+
+vnoremap <S-Left> h
+vnoremap <S-Right> l
+vnoremap <S-Up> k
+vnoremap <S-Down> j
+
+inoremap <S-Left> <Left>
+inoremap <S-Right> <Right>
+inoremap <S-Up> <Up>
+inoremap <S-Down> <Down>
+
+" Map Shift + h/l to move to the beginning/end of the line in normal mode
+nnoremap <S-h> ^
+nnoremap <S-l> $
+
+" Map Shift + h/l to move to the beginning/end of the line in visual mode
+vnoremap <S-h> ^
+vnoremap <S-l> $
+
+" leader-w window/split management
+" Map Space + w + Arrow keys to move between splits
+nnoremap <Space>w<Left> <C-w>h
+nnoremap <Space>w<Right> <C-w>l
+nnoremap <Space>w<Up> <C-w>k
+nnoremap <Space>w<Down> <C-w>j
+" vim movement between splits
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k  
+
+" move split to the left shift movement
+"nnoremap <Space>Wh <C-w>H
+"nnoremap <Space>Wl <C-w>L
+"nnoremap <Space>Wj <C-w>J
+"noremap <Space>Wk <C-w>K
+
+" map space + w + n to add a new split
+nnoremap <Space>wn :split<CR>
+
+" map space + w + d to close the current split
+nnoremap <Space>wd :close<CR>
+
+" map space e to toggle NERDTree
+nnoremap <Space>e :NERDTreeToggle<CR>
+" map space o to toggel focus NERDTree
+nnoremap <Space>o :NERDTreeFind<CR>
+
+" Map g + I to go to GotoImplementation
+nnoremap gI :action GotoImplementation<CR>
+
+" Map ] + e to jump to next error
+nnoremap ]e :action ReSharperGotoNextErrorInSolution<CR>
+" Map [ + e to jump to previous error
+nnoremap [e :action ReSharperGotoPrevErrorInSolution<CR>
+
+" reload .ideavimrc without restarting the IDE
+nnoremap <Space>sv :action IdeaVim.ReloadVimRc.reload<CR>
+
+" remap space + r to reformat Code
+nnoremap <Space>r :action ReformatCode<CR>
+vnoremap <Space>r :action ReformatCode<CR>
+
+" leader-a Actions 
+nnoremap <Space>ar :action Refactorings.QuickListPopupAction<CR>
+
+" leader-f FIND 
+nnoremap <Space>ff :action GotoFile<CR>
+nnoremap <Space>fg :action GotoSymbol<CR> 
+nnoremap <Space>fa :action GotoAction<CR>
+nnoremap <Space>fr :action RecentFiles<CR>
+nnoremap <Space>fs :action SaveAll<CR>
+nnoremap <Space>fR :action ReplaceInPath<CR>
+nnoremap <Space>fF :action FindInPath<CR>
+nnoremap <Space>fD :action ShowUsages<CR>
+nnoremap <Space>fL :action ShowLibraryContents<CR>
+nnoremap <Space>fT :action FileStructurePopup<CR>
+nnoremap <Space>fC :action RecentChangedFiles<CR>
+nnoremap <Space>fE :action RecentEditedFiles<CR>
+nnoremap <Space>fH :action GotoDeclaration<CR>
+nnoremap <Space>fM :action GotoImplementation<CR>
+nnoremap <Space>fN :action GotoNextMethod<CR>
+nnoremap <Space>fO :action GotoPreviousMethod<CR>
+" find text
+nnoremap <Space>fw :action TextSearchAction<CR>
+
+
+" indent and unindent in visual mode with < and > keeping selection
+vnoremap < <gv
+vnoremap > >gv
+
+" redo with shift u
+nnoremap U <C-r>
+
+
+" open terminal with space + o + t
+noremap <Space>ot :action ActivateTerminalToolWindow<CR>
+
+" exit to normal mode with jj in insert mode
+inoremap jj <Esc>
+
+" exit to normal mode wtih C-c
+inoremap <C-c> <Esc>
+
+" make y yank copy to system clipboard
+vnoremap y "+y
+nnoremap y "+y
