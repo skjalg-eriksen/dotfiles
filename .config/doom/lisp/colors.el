@@ -19,6 +19,7 @@
 ;; (set-face-background 'default "undefined")
 ;; (set-face-attribute 'default nil :background "unspecified-bg")
 
+(setq doom-theme 'catppuccin)
 
 (set-frame-parameter nil 'alpha-background 80)
 (add-to-list 'default-frame-alist '(alpha-background . 80))

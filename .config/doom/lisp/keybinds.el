@@ -23,6 +23,7 @@
  ;; ---- Tabs, rebinding ] b and [ b
  :n "] b" #'centaur-tabs-forward
  :n "[ b" #'centaur-tabs-backward
+ :n "s-e" #'+vertico/switch-workspace-buffer
  )
 
 
