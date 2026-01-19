@@ -1,0 +1,7 @@
+#!/bin/bash
+
+N=${1:-5}
+
+git for-each-ref --sort=-committerdate refs/heads/ \
+  --format='%(color:green)%(committerdate:relative)%(color:reset) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject)' \
+  --count="$N"

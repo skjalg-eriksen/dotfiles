@@ -14,7 +14,7 @@ from enum import IntEnum
 from os import walk
 from pathlib import Path
 from re import Pattern
-from re import compile as re_compile
+from re import compile as re_compile, escape as re_escape
 from sys import argv
 from typing import Iterator, List, Tuple
 
@@ -33,6 +33,14 @@ CONFIG_DIR = DOTFILES / ".config"
 IGNORE_PATTERNS: List[Pattern] = []
 
 
+def compile_segment_pattern(raw: str) -> Pattern:
+    # Escape user input, then match only whole path segments
+    escaped = re_escape(raw)
+    # Allow match at start or after a slash, and end or before a slash
+    regex = rf"(?:^|/){escaped}(?:/|$)"
+    return re_compile(regex)
+
+
 def load_ignore() -> List[Pattern]:
     """READS .dotsignore into global IGNORE_PATTERNS variable"""
     if IGNORE.exists() and len(IGNORE_PATTERNS) == 0:
@@ -40,7 +48,7 @@ def load_ignore() -> List[Pattern]:
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            IGNORE_PATTERNS.append(re_compile(line))
+            IGNORE_PATTERNS.append(compile_segment_pattern(line))
     return IGNORE_PATTERNS
 
 
@@ -157,9 +165,9 @@ def enable(relative_path: str):
 
     if target.exists():
         target_bak = target.with_suffix(".bak")
-        assert (
-            not target_bak.exists()
-        ), "Cant backup file as .bak suffixed file already exists"
+        assert not target_bak.exists(), (
+            "Cant backup file as .bak suffixed file already exists"
+        )
         target.rename(target_bak)
 
     target.symlink_to(source_root)
