@@ -78,7 +78,7 @@
 (after! persp-mode
   (setq persp-state-default-file "~/.emacs.d/workspaces")
   (setq persp-auto-save-fname "autosave")
-  (setq persp-auto-resume-time 1))  ; auto-restore on startup
+  (setq persp-auto-resume-time -1))  ; auto-restore on startup
 
 ;; Start lsp-mode automatically for prog-mode derivatives
 (add-hook 'prog-mode-hook #'lsp-deferred)
