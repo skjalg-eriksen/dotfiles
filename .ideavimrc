@@ -4,7 +4,7 @@
 " Find more examples here: https://jb.gg/share-ideavimrc
 set ignorecase
 set smartcase
-set guicursor
+" set guicursor
 set showmode
 
  " -- Suggested options --
@@ -18,6 +18,9 @@ set incsearch
 " Don't use Ex mode, use Q for formatting.
 map Q gq
 
+" dont space in nomral mode
+nnoremap <Space> <Nop>
+
 " --- Enable IdeaVim plugins https://jb.gg/ideavim-plugins
 
 " Highlight copied text
@@ -29,7 +32,11 @@ autocmd FileType csharp,c,cpp,java setlocal commentstring=//\ %s
 Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround'
 Plug 'dbakker/vim-paragraph-motion'
+
+" -- Which Key Plugin --
 set which-key
+set notimeout " dont close which-key menu automatically
+" set timeoutlen=1000 " time to wait for which-key input
 
 "nmap <C-n> :NextHighlight<CR>
 "nmap <C-p> :PreviousHighlight<CR>
@@ -96,7 +103,7 @@ nnoremap <C-k> <C-w>k
 "noremap <Space>Wk <C-w>K
 
 " map space + w + n to add a new split
-nnoremap <Space>wn :split<CR>
+nnoremap <Space>wn :vsplit<CR>
 
 " map space + w + d to close the current split
 nnoremap <Space>wd :close<CR>
@@ -104,7 +111,7 @@ nnoremap <Space>wd :close<CR>
 " map space e to toggle NERDTree
 nnoremap <Space>e :NERDTreeToggle<CR>
 " map space o to toggel focus NERDTree
-nnoremap <Space>o :NERDTreeFind<CR>
+nnoremap <Space>o :NERDTreeFocus<CR>
 
 " Map g + I to go to GotoImplementation
 nnoremap gI :action GotoImplementation<CR>
@@ -154,7 +161,7 @@ nnoremap U <C-r>
 
 
 " open terminal with space + o + t
-noremap <Space>ot :action ActivateTerminalToolWindow<CR>
+noremap <Space>t :action ActivateTerminalToolWindow<CR>
 
 " exit to normal mode with jj in insert mode
 inoremap jj <Esc>
@@ -165,3 +172,14 @@ inoremap <C-c> <Esc>
 " make y yank copy to system clipboard
 vnoremap y "+y
 nnoremap y "+y
+
+" build project with space + b + b
+nnoremap <Space>bb :action BuildProject<CR>
+" run project with space + b + r
+nnoremap <Space>br :action Run<CR>
+" run unit tests with space + b + t
+nnoremap <Space>bt :action Rider.UnitTesting.RunContext<CR>
+" run all unit tests with space + b + T
+nnoremap <Space>bT :action RiderUnitTestRunSolutionAction<CR>
+" stop running process with space + b + s
+nnoremap <Space>bs :action Stop<CR>
