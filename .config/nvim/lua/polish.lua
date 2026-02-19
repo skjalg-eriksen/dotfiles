@@ -1,5 +1,3 @@
-if true then return end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
 -- This will run last in the setup process.
 -- This is just pure lua so anything that doesn't
 -- fit in the normal config locations above can go here
@@ -19,3 +17,12 @@ vim.keymap.set("v", "<C-z>", "<nop>")
 -- move lines up and down
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv")
+
+-- Disable Shift + Arrow keys
+vim.keymap.set({ "n", "i", "v" }, "<S-Left>",  "<Nop>")
+vim.keymap.set({ "n", "i", "v" }, "<S-Right>", "<Nop>")
+vim.keymap.set({ "n", "i", "v" }, "<S-Up>",    "<Nop>")
+vim.keymap.set({ "n", "i", "v" }, "<S-Down>",  "<Nop>")
+
+
+vim.keymap.set("t", "<C-[>", [[<C-\><C-n>]], { noremap = true })
