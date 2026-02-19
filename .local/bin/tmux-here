@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Get current directory name
+DIR_NAME="$(basename "$PWD")"
+
+# Sanitize: replace bad chars with _
+SESSION_NAME="$(echo "$DIR_NAME" | tr -c 'a-zA-Z0-9_-' '_')"
+
+# Fallback if empty
+if [[ -z "$SESSION_NAME" ]]; then
+  SESSION_NAME="session"
+fi
+
+# Check if session exists
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+  # Attach/switch to it
+  if [[ -n "${TMUX:-}" ]]; then
+    tmux switch-client -t "$SESSION_NAME"
+  else
+    tmux attach -t "$SESSION_NAME"
+  fi
+else
+  # Create new session in current dir
+  if [[ -n "${TMUX:-}" ]]; then
+    tmux new-session -d -s "$SESSION_NAME" -c "$PWD"
+    tmux switch-client -t "$SESSION_NAME"
+  else
+    tmux new-session -s "$SESSION_NAME" -c "$PWD"
+  fi
+fi
