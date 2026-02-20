@@ -184,6 +184,7 @@ class Key(IntEnum):
 
     ENTER = 10
     ENTER2 = 13
+    SPACE = ord(" ")
 
     BACKSPACE = KEY_BACKSPACE
     BACKSPACE2 = 127
@@ -294,7 +295,7 @@ def tui(window: Window):
                 if configs:
                     selected = (selected + 1) % len(configs)
 
-            case Key.ENTER | Key.ENTER2:
+            case Key.ENTER | Key.ENTER2 | Key.SPACE:
                 if selected < len(configs) and selected >= 0:
                     enabled, path = configs[selected]
                     if enabled:
