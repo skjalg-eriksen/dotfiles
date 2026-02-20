@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# environment
+ASPNETCORE_ENVIRONMENT=Staging dotnet ef "$@"
+
