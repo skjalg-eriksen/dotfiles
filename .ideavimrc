@@ -115,6 +115,7 @@ nnoremap <Space>o :NERDTreeFocus<CR>
 
 " Map g + I to go to GotoImplementation
 nnoremap gI :action GotoImplementation<CR>
+nnoremap gi :action GotoImplementation<CR>
 
 " Map ] + e to jump to next error
 nnoremap ]e :action ReSharperGotoNextErrorInSolution<CR>
@@ -123,10 +124,12 @@ nnoremap [e :action ReSharperGotoPrevErrorInSolution<CR>
 
 " reload .ideavimrc without restarting the IDE
 nnoremap <Space>sv :action IdeaVim.ReloadVimRc.reload<CR>
+" open .ideavimrc for editing
+nnoremap <Space>se :edit ~/.ideavimrc<CR>
 
 " remap space + r to reformat Code
-nnoremap <Space>r :action ReformatCode<CR>
-vnoremap <Space>r :action ReformatCode<CR>
+" nnoremap <Space>r :action ReformatCode<CR>
+" vnoremap <Space>r :action ReformatCode<CR>
 
 " leader-a Actions 
 nnoremap <Space>ar :action Refactorings.QuickListPopupAction<CR>
@@ -163,6 +166,7 @@ nnoremap U <C-r>
 " open terminal with space + o + t
 noremap <Space>t :action ActivateTerminalToolWindow<CR>
 
+
 " exit to normal mode with jj in insert mode
 inoremap jj <Esc>
 
@@ -174,7 +178,7 @@ vnoremap y "+y
 nnoremap y "+y
 
 " build project with space + b + b
-nnoremap <Space>bb :action BuildProject<CR>
+nnoremap <Space>bb :action BuildCurrentProject<CR>
 " run project with space + b + r
 nnoremap <Space>br :action Run<CR>
 " run unit tests with space + b + t
@@ -183,3 +187,15 @@ nnoremap <Space>bt :action Rider.UnitTesting.RunContext<CR>
 nnoremap <Space>bT :action RiderUnitTestRunSolutionAction<CR>
 " stop running process with space + b + s
 nnoremap <Space>bs :action Stop<CR>
+
+
+" format code with space + c + f
+nnoremap <Space>cf :action ReformatCode<CR>
+" format code in visual mode selection with space + c + f
+vnoremap <Space>cf :action ReformatCode<CR>
+
+" open lazy git with space + g + g
+nnoremap <Space>gg :action OpenLazyGit<CR>
+
+" switch project with space + p + p
+nnoremap <Space>pp :action ManageRecentProjects<CR>
