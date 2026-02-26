@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Directory to search (default: ~/Downloads). Override: DIR=/path read-log
+DIR="${DIR:-$HOME/Downloads}"
+
+# Use nvim from PATH; fallback to Homebrew path if needed
+NVIM="${NVIM:-$(command -v nvim || true)}"
+NVIM="${NVIM:-/opt/homebrew/bin/nvim}"
+
+if [[ ! -x "$NVIM" ]]; then
+  echo "nvim not found. Set NVIM=/path/to/nvim" >&2
+  exit 1
+fi
+
+shopt -s nullglob
+
+# Collect candidates:
+# - log.txt
+# - log (N).txt (e.g., log (21).txt)
+# - *.txt.log (e.g., Chrome’s .txt.log)
+files=(
+  "$DIR"/log.txt
+  "$DIR"/log\ \(*.txt
+  "$DIR"/*.txt.log
+)
+
+# Flatten to only existing matches
+candidates=()
+for f in "${files[@]}"; do
+  [[ -e "$f" ]] || continue
+  candidates+=( "$f" )
+done
+
+if [[ ${#candidates[@]} -eq 0 ]]; then
+  echo "No matching logs found in $DIR" >&2
+  exit 1
+fi
+
+# Pick newest by modification time
+newest=""
+newest_mtime=0
+for f in "${candidates[@]}"; do
+  mtime=$(stat -f "%m" "$f" 2>/dev/null || echo 0)  # macOS/BSD stat
+  if (( mtime > newest_mtime )); then
+    newest_mtime=$mtime
+    newest="$f"
+  fi
+done
+
+echo "Opening: $newest"
+exec "$NVIM" "$newest"
