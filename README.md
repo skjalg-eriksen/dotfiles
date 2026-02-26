@@ -1,6 +1,6 @@
 # Dotfiles
 
-A minimal, simple, deterministic dotfile manager written in Python.
+A minimal and simple dotfile manager written in Python.
 
 It handles:
 
