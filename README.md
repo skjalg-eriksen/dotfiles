@@ -80,7 +80,7 @@ dots
 TUI features:
 
 - interactive checklist  
-- toggle with `<enter>`  
+- toggle with `<enter>`, `<space>`
 - search with `/`  
 - quit with `q`
 
