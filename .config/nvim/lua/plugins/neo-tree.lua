@@ -5,7 +5,13 @@ return {
       filtered_items = {
         visible = true,     -- Show hidden files
         hide_dotfiles = false,
+
       },
     },
+    window = {
+      mappings = {
+        ["/"] = "noop"
+      }
+    }
   },
 }
