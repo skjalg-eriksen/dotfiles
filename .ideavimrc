@@ -199,3 +199,6 @@ nnoremap <Space>gg :action OpenLazyGit<CR>
 
 " switch project with space + p + p
 nnoremap <Space>pp :action ManageRecentProjects<CR>
+
+" enter distraction free mode
+nnoremap <Space>uz :action ToggleDistractionFreeMode<CR>
