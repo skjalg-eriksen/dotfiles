@@ -1,0 +1,124 @@
+#!/bin/bash
+# List all Azure AD application secrets and their expiry dates for apps you own.
+# Requires: az cli (logged in), jq
+
+set -euo pipefail
+
+echo "Fetching applications you own..."
+
+USER_ID=$(az ad signed-in-user show --query id -o tsv)
+
+# Page through all owned applications
+NEXT_URL="https://graph.microsoft.com/v1.0/me/ownedObjects/microsoft.graph.application?\$select=id,displayName,appId,passwordCredentials,keyCredentials"
+
+APPS_JSON="[]"
+
+while [ -n "$NEXT_URL" ]; do
+  RESPONSE=$(az rest --method GET --url "$NEXT_URL" --headers "ConsistencyLevel=eventual" 2>/dev/null)
+  PAGE=$(echo "$RESPONSE" | jq '.value')
+  APPS_JSON=$(echo "$APPS_JSON" "$PAGE" | jq -s 'add')
+  NEXT_URL=$(echo "$RESPONSE" | jq -r '.["@odata.nextLink"] // empty')
+done
+
+APP_COUNT=$(echo "$APPS_JSON" | jq 'length')
+echo "Found $APP_COUNT application(s) you own."
+echo ""
+
+if [ "$APP_COUNT" -eq 0 ]; then
+  echo "No applications found."
+  exit 0
+fi
+
+NOW_EPOCH=$(date +%s)
+TMPFILE=$(mktemp)
+
+echo "$APPS_JSON" | jq -c '.[]' | while read -r APP; do
+  APP_NAME=$(echo "$APP" | jq -r '.displayName')
+  APP_ID=$(echo "$APP" | jq -r '.appId')
+
+  SECRET_COUNT=$(echo "$APP" | jq '.passwordCredentials | length')
+  KEY_COUNT=$(echo "$APP" | jq '.keyCredentials | length')
+
+  # Skip apps with no secrets or certs
+  if [ "$SECRET_COUNT" -eq 0 ] && [ "$KEY_COUNT" -eq 0 ]; then
+    continue
+  fi
+
+  # List password credentials (client secrets)
+  echo "$APP" | jq -c '.passwordCredentials[]?' | while read -r SECRET; do
+    DESC=$(echo "$SECRET" | jq -r '.displayName // "(unnamed)"')
+    END_DATE=$(echo "$SECRET" | jq -r '.endDateTime // "N/A"')
+
+    STATUS="Active"
+    SORT_KEY="9999999999"
+    END_DATE_DISPLAY="N/A"
+    if [ "$END_DATE" != "N/A" ]; then
+      EXPIRY_EPOCH=$(date -jf "%Y-%m-%dT%H:%M:%S" "${END_DATE%%.*}" +%s 2>/dev/null || date -d "${END_DATE}" +%s 2>/dev/null || echo "0")
+      SORT_KEY="$EXPIRY_EPOCH"
+      DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
+      END_DATE_DISPLAY=$(echo "$END_DATE" | cut -dT -f1)
+
+      if [ "$DAYS_LEFT" -lt 0 ]; then
+        STATUS="EXPIRED $(( -DAYS_LEFT )) days ago"
+      elif [ "$DAYS_LEFT" -eq 0 ]; then
+        STATUS="Expires TODAY"
+      elif [ "$DAYS_LEFT" -eq 1 ]; then
+        STATUS="Expires in 1 day"
+      elif [ "$DAYS_LEFT" -le 90 ]; then
+        STATUS="Expires in $DAYS_LEFT days"
+      else
+        STATUS="Active"
+      fi
+    fi
+
+    printf "%s\t%-40s\t%-38s\t%-30s\t%-25s\t%s\n" "$SORT_KEY" "$APP_NAME" "$APP_ID" "[Secret] $DESC" "$STATUS" "$END_DATE_DISPLAY" >> "$TMPFILE"
+  done
+
+  # List key credentials (certificates)
+  echo "$APP" | jq -c '.keyCredentials[]?' | while read -r CERT; do
+    DESC=$(echo "$CERT" | jq -r '.displayName // "(unnamed)"')
+    END_DATE=$(echo "$CERT" | jq -r '.endDateTime // "N/A"')
+
+    STATUS="Active"
+    SORT_KEY="9999999999"
+    END_DATE_DISPLAY="N/A"
+    if [ "$END_DATE" != "N/A" ]; then
+      EXPIRY_EPOCH=$(date -jf "%Y-%m-%dT%H:%M:%S" "${END_DATE%%.*}" +%s 2>/dev/null || date -d "${END_DATE}" +%s 2>/dev/null || echo "0")
+      SORT_KEY="$EXPIRY_EPOCH"
+      DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
+      END_DATE_DISPLAY=$(echo "$END_DATE" | cut -dT -f1)
+
+      if [ "$DAYS_LEFT" -lt 0 ]; then
+        STATUS="EXPIRED $(( -DAYS_LEFT )) days ago"
+      elif [ "$DAYS_LEFT" -eq 0 ]; then
+        STATUS="Expires TODAY"
+      elif [ "$DAYS_LEFT" -eq 1 ]; then
+        STATUS="Expires in 1 day"
+      elif [ "$DAYS_LEFT" -le 90 ]; then
+        STATUS="Expires in $DAYS_LEFT days"
+      else
+        STATUS="Active"
+      fi
+    fi
+
+    printf "%s\t%-40s\t%-38s\t%-30s\t%-25s\t%s\n" "$SORT_KEY" "$APP_NAME" "$APP_ID" "[Cert] $DESC" "$STATUS" "$END_DATE_DISPLAY" >> "$TMPFILE"
+  done
+done
+
+if [ ! -s "$TMPFILE" ]; then
+  echo "No secrets or certificates found on any of your applications."
+  rm -f "$TMPFILE"
+  exit 0
+fi
+
+# Print header and sorted results (by expiry date ascending — soonest first)
+printf "%-40s %-38s %-30s %-25s %s\n" "APPLICATION" "APP ID" "SECRET/CERT" "STATUS" "EXPIRY DATE"
+printf '%.0s-' {1..145}; echo ""
+
+sort -t$'\t' -k1 -n "$TMPFILE" | while IFS=$'\t' read -r _SORT APP_NAME APP_ID DESC STATUS EXPIRY; do
+  printf "%-40s %-38s %-30s %-25s %s\n" "$APP_NAME" "$APP_ID" "$DESC" "$STATUS" "$EXPIRY"
+done
+
+rm -f "$TMPFILE"
+
+one
