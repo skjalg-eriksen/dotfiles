@@ -1,0 +1,33 @@
+#!/bin/bash
+
+if [ "$1" = "" ]; then
+  echo "Usage: $0 <service-management-reference>"
+  exit 1
+fi
+
+REFERENCE="$1"
+URL="https://graph.microsoft.com/v1.0/applications?\$select=displayName,appId,serviceManagementReference&\$top=999"
+
+echo "Searching for apps with serviceManagementReference: '$REFERENCE'"
+echo "---"
+
+COUNT=0
+PAGE=1
+
+while [ "$URL" != "" ]; do
+  RESPONSE=$(az rest --method get --url "$URL" 2>/dev/null)
+
+  MATCHES=$(echo "$RESPONSE" | jq -r --arg ref "$REFERENCE" \
+    '[.value[] | select(.serviceManagementReference == $ref)] | length')
+
+  echo "$RESPONSE" | jq -r --arg ref "$REFERENCE" \
+    '.value[] | select(.serviceManagementReference == $ref) | "\(.displayName) (\(.appId))"'
+
+  COUNT=$((COUNT + MATCHES))
+  PAGE=$((PAGE + 1))
+
+  URL=$(echo "$RESPONSE" | jq -r '."@odata.nextLink" // empty')
+done
+
+echo "---"
+echo "Total matches: $COUNT"
