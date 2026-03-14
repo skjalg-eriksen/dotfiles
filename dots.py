@@ -170,6 +170,7 @@ def enable(relative_path: str):
         )
         target.rename(target_bak)
 
+    target.parent.mkdir(parents=True, exist_ok=True)
     target.symlink_to(source_root)
 
 
