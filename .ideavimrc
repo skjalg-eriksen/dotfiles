@@ -193,12 +193,20 @@ nnoremap <Space>bs :action Stop<CR>
 nnoremap <Space>cf :action ReformatCode<CR>
 " format code in visual mode selection with space + c + f
 vnoremap <Space>cf :action ReformatCode<CR>
+" format code with csharpier with space + c + s
+" nnoremap <Space>cs :action CSharpierReformatCode<CR>
 
 " open lazy git with space + g + g
-nnoremap <Space>gg :action OpenLazyGit<CR>
+nnoremap <Space>gg :action LazyGit.Open<CR>
 
 " switch project with space + p + p
 nnoremap <Space>pp :action ManageRecentProjects<CR>
 
 " enter distraction free mode
 nnoremap <Space>uz :action ToggleDistractionFreeMode<CR>
+
+" open diffs
+nnoremap <Space>gd :action Diff.ShowDiff<CR>
+
+" open Toggle breakpoint
+nnoremap <Space>bc :action ToggleLineBreakpoint<CR>
