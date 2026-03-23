@@ -28,6 +28,7 @@ HOME = Path.home()
 DOTFILES = Path(__file__).resolve().parent
 IGNORE = DOTFILES / ".dotsignore"
 CONFIG_DIR = DOTFILES / ".config"
+DOTS_DIR = DOTFILES / ".dots-dir"
 
 # .dotsignore
 IGNORE_PATTERNS: List[Pattern] = []
@@ -50,7 +51,6 @@ def load_ignore() -> List[Pattern]:
                 continue
             IGNORE_PATTERNS.append(compile_segment_pattern(line))
     return IGNORE_PATTERNS
-
 
 def is_ignored(path: str):
     return any(regex.search(path) for regex in load_ignore())
@@ -216,7 +216,8 @@ def tui_render_selection(
     if selected >= len(configs):
         selected = max(0, len(configs) - 1)
 
-    for idx, (enabled, path) in enumerate(configs):
+    max_rows = height - 3
+    for idx, (enabled, path) in enumerate(configs[:max_rows]):
         name = str(path.relative_to(DOTFILES))
         status = "[X]" if enabled else "[ ]"
 
