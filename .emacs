@@ -82,3 +82,53 @@
                     :foreground "#f4a020"
                     :background "#2a2a2a"
                     :weight 'bold)
+
+
+;; completion UI
+(use-package corfu
+  :init
+  (global-corfu-mode)
+  :config
+  (setq corfu-auto t
+        corfu-auto-delay 0.2
+        corfu-auto-prefix 1))
+
+;; extra completion sources
+(use-package cape
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file))
+
+;; eglot (LSP)
+(use-package eglot
+  :hook ((python-mode . eglot-ensure)
+         (rust-mode . eglot-ensure)
+         (zig-mode . eglot-ensure)
+         (c-mode . eglot-ensure)
+         (c++-mode . eglot-ensure)
+         (asm-mode . eglot-ensure)
+         (sh-mode . eglot-ensure)))
+(use-package rust-mode)
+(use-package zig-mode)
+(use-package nasm-mode) ;; better than asm-mode for x86
+
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-initialize))
+(setq python-shell-interpreter "python")
+(setq eglot-autoshutdown t) ;; auto shutdown lsp when buffer closes
+
+(use-package which-key
+  :ensure t
+  :init
+  (which-key-mode)
+  :config
+  ;; optional: make it show faster
+  (setq which-key-idle-delay 0.3))
+
+;; lets exist at more than one place at once!
+(use-package multiple-cursors
+  :bind (("C-S-c C-S-c" . mc/edit-lines)
+         ("C->" . mc/mark-next-like-this)
+         ("C-<" . mc/mark-previous-like-this)
+         ("C-c C-<" . mc/mark-all-like-this)))
