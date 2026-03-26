@@ -132,3 +132,5 @@
          ("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
          ("C-c C-<" . mc/mark-all-like-this)))
+(use-package magit
+  :bind (("C-x g" . magit-status)))
