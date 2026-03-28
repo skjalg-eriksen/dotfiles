@@ -59,29 +59,29 @@
 (set-face-attribute 'default nil
                     :font "JetBrains Mono"
                     :height 110)
-(set-face-attribute 'font-lock-keyword-face nil
-                    :weight 'bold)
-(set-face-attribute 'font-lock-function-name-face nil
-                    :foreground "#ffd700")
-(global-hl-line-mode 1)
-(set-face-background 'hl-line "#2a2a2a")
+;; (set-face-attribute 'font-lock-keyword-face nil
+;;                     :weight 'bold)
+;; (set-face-attribute 'font-lock-function-name-face nil
+;;                     :foreground "#ffd700")
+;; (global-hl-line-mode 1)
+;; (set-face-background 'hl-line "#2a2a2a")
 
 
-(set-face-attribute 'mode-line nil
-                    :background "#1c1c1c"
-                    :foreground "#e4e4ef"
-                    :box nil)
+;; (set-face-attribute 'mode-line nil
+;;                     :background "#1c1c1c"
+;;                     :foreground "#e4e4ef"
+;;                     :box nil)
 
-(set-face-attribute 'mode-line-inactive nil
-                    :background "#101010"
-                    :foreground "#5a5a5a"
-                    :box nil)
-(show-paren-mode 1)
+;; (set-face-attribute 'mode-line-inactive nil
+;;                     :background "#101010"
+;;                     :foreground "#5a5a5a"
+;;                     :box nil)
+;; (show-paren-mode 1)
 
-(set-face-attribute 'show-paren-match nil
-                    :foreground "#f4a020"
-                    :background "#2a2a2a"
-                    :weight 'bold)
+;; (set-face-attribute 'show-paren-match nil
+;;                     :foreground "#f4a020"
+;;                     :background "#2a2a2a"
+;;                     :weight 'bold)
 
 
 ;; completion UI
