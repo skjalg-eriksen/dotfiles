@@ -28,7 +28,6 @@ HOME = Path.home()
 DOTFILES = Path(__file__).resolve().parent
 IGNORE = DOTFILES / ".dotsignore"
 CONFIG_DIR = DOTFILES / ".config"
-DOTS_DIR = DOTFILES / ".dots-dir"
 
 # .dotsignore
 IGNORE_PATTERNS: List[Pattern] = []
