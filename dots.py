@@ -9,6 +9,11 @@ dots --enable <name>
 dots --disable <name>
 """
 
+# list of ignored paths
+IGNORE_RULES = [".git", ".gitignore", "README.md", "dots.py", "__pycache__"]
+# list of paths that will be symlinked as modules
+DIR_MODULES = [".config/*", ".emacs.d"]
+
 from argparse import ArgumentParser
 from curses import (
     A_REVERSE,
@@ -29,10 +34,6 @@ from typing import Iterator, List, Tuple
 
 HOME = Path.home()
 DOTFILES = Path(__file__).resolve().parent
-
-IGNORE_RULES = [".git", ".gitignore", "README.md", "dots.py", "__pycache__"]
-DIR_MODULES = [".config/*", ".emacs.d"]
-
 def is_enabled(path: Path) -> bool:
     target = HOME / path 
     return target.is_symlink() and target.resolve() == path.resolve()
