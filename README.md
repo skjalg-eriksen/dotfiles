@@ -38,9 +38,9 @@ dots --list
 Example:
 
 ```
-[ENABLED]   .tmux.conf
-[DISABLED]  .zshrc
-[ENABLED]   .config/nvim
+[X]   .tmux.conf
+[ ]  .zshrc
+[X]   .config/nvim
 ```
 
 ---

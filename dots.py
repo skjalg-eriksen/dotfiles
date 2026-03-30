@@ -22,7 +22,7 @@ from curses import (
 from enum import IntEnum
 from os import walk
 from pathlib import Path
-from re import Pattern
+from re import Pattern, error as ReError
 from re import compile as re_compile
 from sys import argv
 from typing import Iterator, List, Tuple
@@ -235,13 +235,14 @@ def tui(window: Window):
     curs_set(0)  # no cursor
 
     slash_search: Pattern | None = None
+    slash_search_text = ""
     selected = 0
     selected_before_slash = 0
     filter_mode = -1
 
     while True:
         height, _ = window.getmaxyx()
-        window.addstr(0, 0, " Toggle dotfiles (Enter = toggle, q = quit, / = filter)")
+        window.addstr(0, 0, " Toggle dotfiles (Space, Enter = toggle, q = quit, / = filter)")
 
         configs = tui_render_selection(window, selected, slash_search)
 
@@ -255,24 +256,25 @@ def tui(window: Window):
         configs = tui_render_selection(window, selected, slash_search)
 
         # filter mode
-        if selected == filter_mode and is_valid_pattern_key:
-            current = str(slash_search.pattern) if slash_search is not None else ""
+        if selected == filter_mode and is_valid_pattern_key(key):
+            current = slash_search_text
             if is_backspace_key(key):
                 current = current[:-1]
-                slash_search = re_compile(current)
             else:
-                slash_search = re_compile(
-                    current + chr(key)
-                )  # compile pattern with re module
+                current = current + chr(key)
+            slash_search_text = current
+            try:
+                slash_search = re_compile(current) if current else None
+            except ReError:
+                # Keep the raw input visible while treating invalid regex as no filter.
+                slash_search = None
 
         window.move(height - 1, 0)
         window.clrtoeol()
-        if slash_search is not None:
+        if slash_search_text:
             block = "█" if selected == filter_mode else ""
             try:
-                window.addstr(
-                    height - 1, 0, f":{slash_search.pattern}{block}"
-                )  # display filter
+                window.addstr(height - 1, 0, f"/{slash_search_text}{block}")
             except Exception:
                 pass
 
@@ -294,8 +296,8 @@ def tui(window: Window):
                         enable(str(path))
 
             case Key.SLASH | Key.COLON:
-                current = slash_search.pattern if slash_search is not None else ""
-                window.addstr(height - 1, 0, f":{current}█")  # display filter
+                current = slash_search_text
+                window.addstr(height - 1, 0, f"/{current}█")  # display filter
                 selected_before_slash = selected
                 selected = filter_mode  # select none
                 continue
