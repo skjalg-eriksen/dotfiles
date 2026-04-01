@@ -4,6 +4,7 @@
 # Emacs runtime state
 .emacs.d/auto-save-list/
 .emacs.d/transient/
+.emacs.d/.cache/
 
 # Emacs auto-generated customizations
 .emacs.custom
