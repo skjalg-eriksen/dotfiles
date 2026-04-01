@@ -7,7 +7,7 @@ set smartcase
 " set guicursor
 set showmode
 
- " -- Suggested options --
+" -- Suggested options --
 " Show a few lines of context around the cursor. Note that this makes the
 " text scroll if you mouse-click near the start or end of the window.
 set scrolloff=5
@@ -86,10 +86,10 @@ vnoremap <S-l> $
 
 " leader-w window/split management
 " Map Space + w + Arrow keys to move between splits
-nnoremap <Space>w<Left> <C-w>h
-nnoremap <Space>w<Right> <C-w>l
-nnoremap <Space>w<Up> <C-w>k
-nnoremap <Space>w<Down> <C-w>j
+" nnoremap <Space>w<Left> <C-w>h
+" nnoremap <Space>w<Right> <C-w>l
+" nnoremap <Space>w<Up> <C-w>k
+" nnoremap <Space>w<Down> <C-w>j
 " vim movement between splits
 nnoremap <C-h> <C-w>h
 nnoremap <C-l> <C-w>l
@@ -103,10 +103,10 @@ nnoremap <C-k> <C-w>k
 "noremap <Space>Wk <C-w>K
 
 " map space + w + n to add a new split
-nnoremap <Space>wn :vsplit<CR>
+" nnoremap <Space>wn :vsplit<CR>
 
 " map space + w + d to close the current split
-nnoremap <Space>wd :close<CR>
+" nnoremap <Space>wd :close<CR>
 
 " map space e to toggle NERDTree
 nnoremap <Space>e :NERDTreeToggle<CR>
