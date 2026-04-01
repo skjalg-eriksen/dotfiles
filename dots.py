@@ -21,6 +21,7 @@ from curses import (
     KEY_DOWN,
     KEY_UP,
     curs_set,
+    error as curses_error,
     window as Window,
     wrapper,
 )
@@ -233,7 +234,10 @@ def is_valid_pattern_key(key: int):
 
 
 def tui(window: Window):
-    curs_set(0)  # no cursor
+    try:
+        curs_set(0)  # no cursor
+    except curses_error:
+        pass
 
     slash_search: Pattern | None = None
     slash_search_text = ""
