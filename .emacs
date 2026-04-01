@@ -134,3 +134,8 @@
          ("C-c C-<" . mc/mark-all-like-this)))
 (use-package magit
   :bind (("C-x g" . magit-status)))
+
+
+(use-package markdown-mode
+    :mode ("\\.md\\'" "\\.markdown\\'")
+    :hook (markdown-mode . visual-line-mode))
