@@ -26,5 +26,5 @@
 (require 'modal-editing)
 (require 'editing)
 (require 'completion)
-(require 'eglot)
+(require 'lang-eglot)
 (require 'tools)

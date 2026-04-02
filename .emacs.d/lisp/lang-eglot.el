@@ -1,4 +1,5 @@
 (use-package eglot
+  :ensure nil
   :hook ((python-mode . eglot-ensure)
          (rust-mode   . eglot-ensure)
          (zig-mode    . eglot-ensure)
@@ -19,4 +20,4 @@
 
 (setq python-shell-interpreter "python")
 
-(provide 'eglot)
+(provide 'lang-eglot)
