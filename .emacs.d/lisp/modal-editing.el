@@ -10,4 +10,4 @@
   :config
   (evil-collection-init))
 
-(provide 'evil)
+(provide 'modal-editing)

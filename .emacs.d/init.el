@@ -23,7 +23,7 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 (require 'theme)
-(require 'evil)
+(require 'modal-editing)
 (require 'editing)
 (require 'completion)
 (require 'eglot)
