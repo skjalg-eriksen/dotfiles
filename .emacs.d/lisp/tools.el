@@ -19,4 +19,10 @@
   :mode ("\\.md\\'" "\\.markdown\\'")
   :hook (markdown-mode . visual-line-mode))
 
+(use-package devdocs
+  :bind (("C-c d d" . devdocs-lookup)
+         ("C-c d i" . devdocs-install)
+         ("C-c d u" . devdocs-update-all)
+         ("C-c d s" . devdocs-search)))
+
 (provide 'tools)
