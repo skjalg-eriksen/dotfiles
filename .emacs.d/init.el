@@ -28,3 +28,4 @@
 (require 'completion)
 (require 'lang-eglot)
 (require 'tools)
+(require 'buffers)
