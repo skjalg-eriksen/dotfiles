@@ -5,6 +5,9 @@
 .emacs.d/auto-save-list/
 .emacs.d/transient/
 .emacs.d/.cache/
+.emacs.d/devdocs
+.emacs.d/eln-cache
+.emacs.d/.mc-lists.el
 
 # Emacs auto-generated customizations
 .emacs.custom
