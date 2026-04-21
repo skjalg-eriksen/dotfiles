@@ -22,6 +22,7 @@
 ;; Load config modules
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
+(require 'sk-terminal-clipboard)
 (require 'theme)
 (require 'modal-editing)
 (require 'editing)
