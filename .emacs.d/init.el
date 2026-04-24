@@ -31,3 +31,4 @@
 (require 'tools)
 (require 'buffers)
 (require 'dot-zen)
+(require 'lisp-norwegian)
