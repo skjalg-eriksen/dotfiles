@@ -1,4 +1,4 @@
-;;; dot-zen.el --- distraction-free editing -*- lexical-binding: t; -*-
+;;; skje-zen.el --- distraction-free editing -*- lexical-binding: t; -*-
 
 (use-package olivetti
   :ensure t
@@ -6,10 +6,10 @@
   :config
   (setq olivetti-body-width 90))
 
-(defvar dot/zen-level nil
+(defvar skje-zen-level nil
   "Current zen mode level. nil, 'soft, or 'hard.")
 
-(defvar dot/zen--excluded-modes
+(defvar skje-zen--excluded-modes
   '(term-mode
     vterm-mode
     treemacs-mode
@@ -18,14 +18,14 @@
     minibuffer-mode)
   "Major modes where zen mode should not be enabled.")
 
-(defun dot/zen--eligible-buffer-p ()
+(defun skje-zen--eligible-buffer-p ()
   (and (not (minibufferp))
-       (not (member major-mode dot/zen--excluded-modes))
+       (not (member major-mode skje-zen--excluded-modes))
        (not (string-prefix-p " " (buffer-name)))))
 
-(defun dot/zen--apply-soft ()
+(defun skje-zen--apply-soft ()
   "Soft zen: light focus, good for coding."
-  (when (dot/zen--eligible-buffer-p)
+  (when (skje-zen--eligible-buffer-p)
     ;; layout
     (olivetti-mode 1)
 
@@ -40,9 +40,9 @@
     ;; mild scaling
     (text-scale-set 1)))
 
-(defun dot/zen--apply-hard ()
+(defun skje-zen--apply-hard ()
   "Hard zen: maximum focus, good for writing."
-  (when (dot/zen--eligible-buffer-p)
+  (when (skje-zen--eligible-buffer-p)
     ;; layout
     (olivetti-mode 1)
 
@@ -57,7 +57,7 @@
     ;; stronger scaling
     (text-scale-set 2)))
 
-(defun dot/zen--disable ()
+(defun skje-zen--disable ()
   "Disable zen mode in current buffer."
   ;; restore modeline
   (when (fboundp 'doom-modeline-mode)
@@ -71,43 +71,43 @@
   (olivetti-mode -1)
   (text-scale-set 0))
 
-(defun dot/zen--apply-current ()
+(defun skje-zen--apply-current ()
   "Apply current zen level to this buffer."
-  (pcase dot/zen-level
-    ('soft (dot/zen--apply-soft))
-    ('hard (dot/zen--apply-hard))
-    (_ (dot/zen--disable))))
+  (pcase skje-zen-level
+    ('soft (skje-zen--apply-soft))
+    ('hard (skje-zen--apply-hard))
+    (_ (skje-zen--disable))))
 
-(defun dot/zen--apply-to-all-buffers ()
+(defun skje-zen--apply-to-all-buffers ()
   (dolist (buf (buffer-list))
     (with-current-buffer buf
-      (dot/zen--apply-current))))
+      (skje-zen--apply-current))))
 
-(defun dot/zen--maybe-apply ()
-  (when dot/zen-level
-    (dot/zen--apply-current)))
+(defun skje-zen--maybe-apply ()
+  (when skje-zen-level
+    (skje-zen--apply-current)))
 
-(defun dot/toggle-zen-soft ()
+(defun skje-zen-toggle-soft ()
   "Toggle soft zen mode."
   (interactive)
-  (setq dot/zen-level (if (eq dot/zen-level 'soft) nil 'soft))
-  (dot/zen--apply-to-all-buffers)
+  (setq skje-zen-level (if (eq skje-zen-level 'soft) nil 'soft))
+  (skje-zen--apply-to-all-buffers)
   (message "Zen mode: %s"
-           (if dot/zen-level "soft enabled" "disabled")))
+           (if skje-zen-level "soft enabled" "disabled")))
 
-(defun dot/toggle-zen-hard ()
+(defun skje-zen-toggle-hard ()
   "Toggle hard zen mode."
   (interactive)
-  (setq dot/zen-level (if (eq dot/zen-level 'hard) nil 'hard))
-  (dot/zen--apply-to-all-buffers)
+  (setq skje-zen-level (if (eq skje-zen-level 'hard) nil 'hard))
+  (skje-zen--apply-to-all-buffers)
   (message "Zen mode: %s"
-           (if dot/zen-level "hard enabled" "disabled")))
+           (if skje-zen-level "hard enabled" "disabled")))
 
 ;; apply to new buffers
-(add-hook 'after-change-major-mode-hook #'dot/zen--maybe-apply)
+(add-hook 'after-change-major-mode-hook #'skje-zen--maybe-apply)
 
 (with-eval-after-load 'evil
   (define-key evil-normal-state-map (kbd "SPC u z") #'dot/toggle-zen-soft)
   (define-key evil-normal-state-map (kbd "SPC u Z") #'dot/toggle-zen-hard))
 
-(provide 'dot-zen)
+(provide 'skje-zen)

@@ -1,4 +1,4 @@
-;;; buffers.el --- buffer management -*- lexical-binding: t; -*-
+;;; skje-ibuffer.el --- buffer management -*- lexical-binding: t; -*-
 
 (use-package ibuffer
   :ensure nil
@@ -21,8 +21,8 @@
 
 (with-eval-after-load 'evil
   ;; buffer navigation
-  (define-key evil-normal-state-map (kbd "SPC b i") 'ibuffer)
-  (define-key evil-normal-state-map (kbd "[ b") 'previous-buffer)
-  (define-key evil-normal-state-map (kbd "] b") 'next-buffer))
+  (define-key evil-normal-state-map (kbd "SPC b i") #'ibuffer)
+  (define-key evil-normal-state-map (kbd "[ b") #'previous-buffer)
+  (define-key evil-normal-state-map (kbd "] b") #'next-buffer))
 
-(provide 'buffers)
+(provide 'skje-ibuffer)

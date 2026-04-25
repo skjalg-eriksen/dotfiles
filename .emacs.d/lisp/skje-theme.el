@@ -40,4 +40,4 @@
 ;; default theme
 (my/theme-catppuccin)
 
-(provide 'theme)
+(provide 'skje-theme)

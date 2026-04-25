@@ -1,3 +1,5 @@
+;;; skje-evil.el --- evil configuration -*- lexical-binding: t -*-
+
 (use-package evil
   :init
   (setq evil-want-C-u-scroll t
@@ -39,4 +41,4 @@
   (define-key evil-visual-state-map (kbd "C-S-c C-S-c") 'evil-mc-make-cursor-in-visual-selection-beg)
 )
 
-(provide 'modal-editing)
+(provide 'skje-evil)

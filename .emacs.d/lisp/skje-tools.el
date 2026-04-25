@@ -1,3 +1,5 @@
+;;; skje-tools.el --- tool plugins -*- lexical-binding: t; -*-
+
 (use-package magit
   :bind (("C-x g" . magit-status)))
 
@@ -25,4 +27,4 @@
          ("C-c d u" . devdocs-update-all)
          ("C-c d s" . devdocs-search)))
 
-(provide 'tools)
+(provide 'skje-tools)

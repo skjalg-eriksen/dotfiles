@@ -1,3 +1,5 @@
+;;; skje-eglot.el --- eglot setup -*- lexical-binding: t -*-
+
 (use-package eglot
   :ensure nil
   :hook ((python-mode . eglot-ensure)
@@ -22,4 +24,4 @@
 
 (setq python-shell-interpreter "python")
 
-(provide 'lang-eglot)
+(provide 'skje-eglot)
