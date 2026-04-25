@@ -15,6 +15,7 @@
 # Emacs lock / backup files (created while editing in Emacs)
 .#*
 \#*#
+*~
 
 # Compiled elisp
 *.elc
