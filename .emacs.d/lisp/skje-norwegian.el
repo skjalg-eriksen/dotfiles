@@ -16,17 +16,26 @@
   "Return a lambda that inserts STR interactively."
   `(lambda () (interactive) (skje-norwegian--insert ,str)))
 
-(defvar skje-norwegian-mode-map (let ((map (make-sparse-keymap)))
-                                  ;; lowercase
-                                  (define-key map (kbd "M-a") (skje-norwegian--make-inserter "å"))
-                                  (define-key map (kbd "M-q") (skje-norwegian--make-inserter "æ"))
-                                  (define-key map (kbd "M-o") (skje-norwegian--make-inserter "ø"))
-                                  ;; uppercase (Shift)
-                                  (define-key map (kbd "M-A") (skje-norwegian--make-inserter "Å"))
-                                  (define-key map (kbd "M-Q") (skje-norwegian--make-inserter "Æ"))
-                                  (define-key map (kbd "M-O") (skje-norwegian--make-inserter "Ø"))
-                                  map)
-  "Keymap for `skje-norwegian-mode'.")
+(defvar skje-norwegian-mode-map
+  (let ((map (make-sparse-keymap)))
+    (if (display-graphic-p)
+        ;; GUI Emacs (macOS/Linux)
+        (progn
+          (define-key map (kbd "M-a") (skje-norwegian--make-inserter "å"))
+          (define-key map (kbd "M-q") (skje-norwegian--make-inserter "æ"))
+          (define-key map (kbd "M-o") (skje-norwegian--make-inserter "ø"))
+          (define-key map (kbd "M-A") (skje-norwegian--make-inserter "Å"))
+          (define-key map (kbd "M-Q") (skje-norwegian--make-inserter "Æ"))
+          (define-key map (kbd "M-O") (skje-norwegian--make-inserter "Ø")))
+      ;; Terminal Emacs fallback
+      (progn
+        (define-key map (kbd "C-c n a") (skje-norwegian--make-inserter "å"))
+        (define-key map (kbd "C-c n q") (skje-norwegian--make-inserter "æ"))
+        (define-key map (kbd "C-c n o") (skje-norwegian--make-inserter "ø"))
+        (define-key map (kbd "C-c n A") (skje-norwegian--make-inserter "Å"))
+        (define-key map (kbd "C-c n Q") (skje-norwegian--make-inserter "Æ"))
+        (define-key map (kbd "C-c n O") (skje-norwegian--make-inserter "Ø"))))
+    map))
 
 ;;;###autoload
 (define-minor-mode skje-norwegian-mode
