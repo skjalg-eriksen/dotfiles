@@ -32,3 +32,4 @@
 (require 'skje-ibuffer)
 (require 'skje-zen)
 (require 'skje-norwegian)
+(require 'skje-file-tree)
