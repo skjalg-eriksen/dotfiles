@@ -5,8 +5,8 @@ set -euo pipefail
 # Get current directory name
 DIR_NAME="$(basename "$PWD")"
 
-# Sanitize: replace bad chars with _
-SESSION_NAME="$(printf '%s' "$DIR_NAME" | tr ':.' '--')"
+# Sanitize: strip bad edge chars, replace bad middle chars with -
+SESSION_NAME="$(printf '%s' "$DIR_NAME" | sed 's/^[.:]*//; s/[.:]*$//; s/[.:]/-/g')"
 
 # Fallback if empty
 if [[ -z "$SESSION_NAME" ]]; then
