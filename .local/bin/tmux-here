@@ -6,7 +6,7 @@ set -euo pipefail
 DIR_NAME="$(basename "$PWD")"
 
 # Sanitize: replace bad chars with _
-SESSION_NAME="$(echo "$DIR_NAME" | tr -c 'a-zA-Z0-9_-' '_')"
+SESSION_NAME="$(printf '%s' "$DIR_NAME" | tr ':.' '--')"
 
 # Fallback if empty
 if [[ -z "$SESSION_NAME" ]]; then
