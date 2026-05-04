@@ -107,7 +107,7 @@
 (add-hook 'after-change-major-mode-hook #'skje-zen--maybe-apply)
 
 (with-eval-after-load 'evil
-  (define-key evil-normal-state-map (kbd "SPC u z") #'dot/toggle-zen-soft)
-  (define-key evil-normal-state-map (kbd "SPC u Z") #'dot/toggle-zen-hard))
+  (define-key evil-normal-state-map (kbd "SPC u z") #'skje-zen-toggle-soft)
+  (define-key evil-normal-state-map (kbd "SPC u Z") #'skje-zen-toggle-hard))
 
 (provide 'skje-zen)
