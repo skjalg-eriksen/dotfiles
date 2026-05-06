@@ -43,7 +43,7 @@ set notimeout " dont close which-key menu automatically
 "map <]-d> :NextHighlight<CR>
 "map <[-d> :PreviousHighlight<CR>
 
-:command Delete rm % 
+:command! Delete rm %
 
 ""nnoremap ]] }
 "" nnoremap [[ {
@@ -123,7 +123,7 @@ nnoremap ]e :action ReSharperGotoNextErrorInSolution<CR>
 nnoremap [e :action ReSharperGotoPrevErrorInSolution<CR>
 
 " reload .ideavimrc without restarting the IDE
-nnoremap <Space>sv :action IdeaVim.ReloadVimRc.reload<CR>
+nnoremap <Space>sr :action IdeaVim.ReloadVimRc.reload<CR>
 " open .ideavimrc for editing
 nnoremap <Space>se :edit ~/.ideavimrc<CR>
 
