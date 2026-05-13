@@ -9,11 +9,6 @@ dots --enable <name>
 dots --disable <name>
 """
 
-# list of ignored paths
-IGNORE_RULES = [".git", ".gitignore", "README.md", "dots.py", "__pycache__"]
-# list of paths that will be symlinked as modules
-DIR_MODULES = [".config/*", ".emacs.d"]
-
 from argparse import ArgumentParser
 from curses import (
     A_REVERSE,
@@ -21,22 +16,34 @@ from curses import (
     KEY_DOWN,
     KEY_UP,
     curs_set,
-    error as curses_error,
-    window as Window,
     wrapper,
+)
+from curses import (
+    error as curses_error,
+)
+from curses import (
+    window as Window,
 )
 from enum import IntEnum
 from os import walk
 from pathlib import Path
-from re import Pattern, error as ReError
+from re import Pattern
 from re import compile as re_compile
+from re import error as ReError
 from sys import argv
 from typing import Iterator, List, Tuple
 
+# list of ignored paths
+IGNORE_RULES = [".git", ".gitignore", "README.md", "dots.py", "__pycache__"]
+# list of paths that will be symlinked as modules
+DIR_MODULES = [".config/*", ".emacs.d"]
+
 HOME = Path.home()
 DOTFILES = Path(__file__).resolve().parent
+
+
 def is_enabled(path: Path) -> bool:
-    target = HOME / path 
+    target = HOME / path
     return target.is_symlink() and target.resolve() == path.resolve()
 
 
@@ -68,9 +75,7 @@ def itr_dotfiles() -> Iterator[Tuple[bool, Path]]:
 
         # Prune ignored directories before descending into them.
         dirs[:] = [
-            dirname
-            for dirname in dirs
-            if not is_ignored(relative_root / dirname)
+            dirname for dirname in dirs if not is_ignored(relative_root / dirname)
         ]
 
         if relative_root != Path(".") and is_ignored(relative_root):
@@ -158,9 +163,9 @@ def enable(relative_path: str):
 
     if target.exists():
         target_bak = target.with_suffix(".bak")
-        assert (
-            not target_bak.exists()
-        ), "Cant backup file as .bak suffixed file already exists"
+        assert not target_bak.exists(), (
+            "Cant backup file as .bak suffixed file already exists"
+        )
         target.rename(target_bak)
 
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -247,7 +252,9 @@ def tui(window: Window):
 
     while True:
         height, _ = window.getmaxyx()
-        window.addstr(0, 0, " Toggle dotfiles (Space, Enter = toggle, q = quit, / = filter)")
+        window.addstr(
+            0, 0, " Toggle dotfiles (Space, Enter = toggle, q = quit, / = filter)"
+        )
 
         configs = tui_render_selection(window, selected, slash_search)
 
