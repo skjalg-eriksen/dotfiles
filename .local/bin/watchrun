@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: watchrun FILE COMMAND [ARG...]
+
+Run COMMAND each time FILE is written, created, or replaced.
+
+Examples:
+  watchrun ./config.yml ./reload-app.sh
+  watchrun ./main.py python3 ./main.py
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -lt 2 ]]; then
+  usage >&2
+  exit 1
+fi
+
+if ! command -v inotifywait >/dev/null 2>&1; then
+  echo "watchrun: missing dependency: inotifywait (from inotify-tools)" >&2
+  exit 1
+fi
+
+target=$1
+shift
+
+dir=$(dirname -- "$target")
+name=$(basename -- "$target")
+
+if [[ ! -d "$dir" ]]; then
+  echo "watchrun: directory does not exist: $dir" >&2
+  exit 1
+fi
+
+echo "watchrun: watching $target"
+
+while IFS= read -r changed; do
+  [[ "$changed" == "$name" ]] || continue
+  "$@"
+done < <(
+  inotifywait -m -q \
+    -e close_write,create,moved_to \
+    --format '%f' \
+    "$dir"
+)
