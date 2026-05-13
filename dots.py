@@ -45,7 +45,7 @@ DOTFILES = Path(__file__).resolve().parent
 def is_enabled(path: Path) -> bool:
     target = HOME / path
     symlnk = DOTFILES / path
-    return target.is_symlink() and target.resolve() == symlnk
+    return target.is_symlink() and target.resolve() == symlnk.resolve()
 
 
 def is_ignored(path: Path):
