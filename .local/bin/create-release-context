@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# Usage: ./create-release-context <owner/repo> <tag> [previous-tag]
+# Example: ./create-release-context owner/repo v1.2.3
+#
+# Outputs a context file: release-context-<tag>.txt
+# Pass the file to Copilot CLI:
+#   gh copilot suggest -t shell "$(cat release-context-v3.0.1.txt)"
+# Or ask Copilot to write release notes using the file as context.
+
+set -euo pipefail
+
+REPO="${1:-}"
+TAG="${2:-}"
+PREV_TAG="${3:-}"
+
+if [[ -z "$REPO" || -z "$TAG" ]]; then
+  echo "Usage: $0 <owner/repo> <tag> [previous-tag]"
+  exit 1
+fi
+
+OUT="release-context-${TAG}.txt"
+
+echo "Fetching release context for $REPO @ $TAG..."
+
+# Resolve previous tag if not provided
+if [[ -z "$PREV_TAG" ]]; then
+  PREV_TAG=$(gh release list --repo "$REPO" --limit 10 --json tagName \
+    --jq --arg tag "$TAG" '[.[].tagName] | . as $tags | ($tags | index($tag)) as $i | if $i == null or $i+1 >= length then "" else $tags[$i+1] end')
+fi
+
+{
+  echo "=============================="
+  echo "RELEASE CONTEXT: $TAG"
+  echo "REPO: $REPO"
+  echo "PREVIOUS TAG: ${PREV_TAG:-unknown}"
+  echo "GENERATED: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  echo "=============================="
+  echo ""
+
+  # --- Release info ---
+  echo "## CURRENT RELEASE"
+  gh release view "$TAG" --repo "$REPO" 2>/dev/null || echo "(No release found for tag $TAG)"
+  echo ""
+
+  # --- Commit comparison ---
+  if [[ -n "$PREV_TAG" ]]; then
+    echo "## COMMITS ($PREV_TAG → $TAG)"
+    gh api "repos/$REPO/compare/${PREV_TAG}...${TAG}" \
+      --jq '.commits[] | "- \(.commit.message | split("\n")[0])  [\(.sha[:7])] by \(.commit.author.name)"' 2>/dev/null ||
+      echo "(Could not fetch commit comparison)"
+    echo ""
+  fi
+
+  # --- Pull Requests ---
+  echo "## PULL REQUESTS"
+
+  if [[ -n "$PREV_TAG" ]]; then
+    # Get merge date window from the two tags
+    PREV_DATE=$(gh api "repos/$REPO/git/refs/tags/$PREV_TAG" --jq '.object.sha' 2>/dev/null |
+      xargs -I{} gh api "repos/$REPO/commits/{}" --jq '.commit.committer.date' 2>/dev/null || echo "")
+    TAG_DATE=$(gh api "repos/$REPO/git/refs/tags/$TAG" --jq '.object.sha' 2>/dev/null |
+      xargs -I{} gh api "repos/$REPO/commits/{}" --jq '.commit.committer.date' 2>/dev/null || echo "")
+  fi
+
+  # Fetch PRs merged around the tag — use commit SHAs from comparison to find PRs
+  if [[ -n "$PREV_TAG" ]]; then
+    SHAS=$(gh api "repos/$REPO/compare/${PREV_TAG}...${TAG}" \
+      --jq '.commits[].sha' 2>/dev/null || echo "")
+
+    declare -A SEEN_PRS
+    while IFS= read -r sha; do
+      [[ -z "$sha" ]] && continue
+      PRS=$(gh api "repos/$REPO/commits/$sha/pulls" \
+        --jq '.[] | "\(.number)|\(.title)|\(.user.login)|\(.html_url)"' 2>/dev/null || true)
+      while IFS= read -r pr_line; do
+        [[ -z "$pr_line" ]] && continue
+        PR_NUM=$(echo "$pr_line" | cut -d'|' -f1)
+        if [[ -z "${SEEN_PRS[$PR_NUM]+_}" ]]; then
+          SEEN_PRS[$PR_NUM]=1
+          PR_TITLE=$(echo "$pr_line" | cut -d'|' -f2)
+          PR_AUTHOR=$(echo "$pr_line" | cut -d'|' -f3)
+          PR_URL=$(echo "$pr_line" | cut -d'|' -f4)
+          echo ""
+          echo "### PR #$PR_NUM — $PR_TITLE"
+          echo "Author: $PR_AUTHOR | $PR_URL"
+          # Full PR body for context
+          gh pr view "$PR_NUM" --repo "$REPO" --json body,labels,reviews \
+            --jq '"Labels: \([.labels[].name] | join(", "))\nBody:\n\(.body // "(no description)")"' 2>/dev/null || true
+        fi
+      done <<<"$PRS"
+    done <<<"$SHAS"
+  else
+    echo "(No previous tag — cannot determine PR range. Pass previous-tag as 3rd argument.)"
+  fi
+
+  echo ""
+  echo "=============================="
+  echo "END OF CONTEXT"
+  echo "=============================="
+} >"$OUT"
+
+echo "Done! Context written to: $OUT"
+echo ""
+echo "Suggested Copilot CLI usage:"
+echo "  gh copilot suggest -t shell \"Write release notes based on this context:\" < $OUT"

@@ -1,0 +1,25 @@
+# Emacs installed packages (reinstalled automatically)
+.emacs.d/elpa/
+
+# Emacs runtime state
+.emacs.d/auto-save-list/
+.emacs.d/transient/
+.emacs.d/.cache/
+.emacs.d/devdocs
+.emacs.d/eln-cache
+.emacs.d/.mc-lists.el
+
+# Emacs auto-generated customizations
+.emacs.custom
+
+# Emacs lock / backup files (created while editing in Emacs)
+.#*
+\#*#
+*~
+
+# Compiled elisp
+*.elc
+
+# Python
+__pycache__/
+*.pyc

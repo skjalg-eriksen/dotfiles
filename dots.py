@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+"""
+dots.py - single file dot file management CLI/TUI
+
+commands
+dots -> TUI with interactive checklist, [q] to quit, [enter] or [space] to toggle config, [/] to fuzzy search
+dots --list -> lists active configs
+dots --enable <name>
+dots --disable <name>
+"""
 
 from argparse import ArgumentParser
 from curses import (
@@ -7,58 +16,40 @@ from curses import (
     KEY_DOWN,
     KEY_UP,
     curs_set,
-    window as Window,
     wrapper,
+)
+from curses import (
+    error as curses_error,
+)
+from curses import (
+    window as Window,
 )
 from enum import IntEnum
 from os import walk
 from pathlib import Path
 from re import Pattern
-from re import compile as re_compile, escape as re_escape
+from re import compile as re_compile
+from re import error as ReError
 from sys import argv
 from typing import Iterator, List, Tuple
 
-# dots.py
-# dots -> tui with interactive checklist, [q] to quit, [enter] to toggle config, [/] to fuzzy search
-# dots --list -> lists active configs
-# dots --enable <name>
-# dots --disable <name>
+# list of ignored paths
+IGNORE_RULES = [".git", ".gitignore", "README.md", "dots.py", "__pycache__"]
+# list of paths that will be symlinked as modules
+DIR_MODULES = [".config/*", ".emacs.d"]
 
 HOME = Path.home()
 DOTFILES = Path(__file__).resolve().parent
-IGNORE = DOTFILES / ".dotsignore"
-CONFIG_DIR = DOTFILES / ".config"
-
-# .dotsignore
-IGNORE_PATTERNS: List[Pattern] = []
 
 
-def compile_segment_pattern(raw: str) -> Pattern:
-    # Escape user input, then match only whole path segments
-    escaped = re_escape(raw)
-    # Allow match at start or after a slash, and end or before a slash
-    regex = rf"(?:^|/){escaped}(?:/|$)"
-    return re_compile(regex)
+def is_enabled(path: Path) -> bool:
+    target = HOME / path
+    symlnk = DOTFILES / path
+    return target.is_symlink() and target.resolve() == symlnk.resolve()
 
 
-def load_ignore() -> List[Pattern]:
-    """READS .dotsignore into global IGNORE_PATTERNS variable"""
-    if IGNORE.exists() and len(IGNORE_PATTERNS) == 0:
-        for line in IGNORE.read_text().splitlines():
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            IGNORE_PATTERNS.append(compile_segment_pattern(line))
-    return IGNORE_PATTERNS
-
-
-def is_ignored(path: str):
-    return any(regex.search(path) for regex in load_ignore())
-
-
-def is_enabled(source_root: Path) -> bool:
-    target = HOME / source_root.relative_to(DOTFILES)
-    return target.is_symlink() and target.resolve() == source_root.resolve()
+def is_ignored(path: Path):
+    return any(path.match(ignore_rule) for ignore_rule in IGNORE_RULES)
 
 
 def itr_dotfiles() -> Iterator[Tuple[bool, Path]]:
@@ -77,29 +68,34 @@ def itr_dotfiles() -> Iterator[Tuple[bool, Path]]:
     - `.config/<module>/` directories are treated as folder-level modules and
       will be symlinked as whole directories.
     - All other files in modules are treated as file-level links.
-    - Any paths listed in `.ignore` should be excluded from the result.
     """
 
-    for root, _, files in walk(DOTFILES, topdown=True):
-        if is_ignored(root):
+    for root, dirs, files in walk(DOTFILES, topdown=True):
+        relative_root = Path(root).relative_to(DOTFILES)
+
+        # Prune ignored directories before descending into them.
+        dirs[:] = [
+            dirname for dirname in dirs if not is_ignored(relative_root / dirname)
+        ]
+
+        if relative_root != Path(".") and is_ignored(relative_root):
+            dirs[:] = []
             continue
-        root_path = Path(root)
 
-        # handle .config modules as dir symlinks
-        if root_path.parent == CONFIG_DIR:
-            yield (is_enabled(root_path), root_path)
-
-        # otherwise skip .config
-        if root_path.is_relative_to(CONFIG_DIR):
+        # A matched directory module is emitted once and its descendants are skipped.
+        if relative_root != Path(".") and any(
+            relative_root.match(dir_module_rule) for dir_module_rule in DIR_MODULES
+        ):
+            yield (is_enabled(relative_root), relative_root)
+            dirs[:] = []
             continue
 
-        # handle normal files
-        for f in files:
-            if is_ignored(f):
+        for raw_path in files:
+            path = relative_root / raw_path
+            if is_ignored(path):
                 continue
 
-            file_path = root / Path(f)
-            yield (is_enabled(file_path), file_path)
+            yield (is_enabled(path), path)
 
 
 def disable(relative_path: str):
@@ -120,8 +116,9 @@ def disable(relative_path: str):
     source_root = DOTFILES / Path(relative_path)
     assert source_root.exists(), "config not found"
 
-    target = HOME / source_root.relative_to(DOTFILES)
-    if not is_enabled(source_root):
+    relative_source = source_root.relative_to(DOTFILES)
+    target = HOME / relative_source
+    if not is_enabled(relative_source):
         print("config not enabled")
         return
     assert target.is_symlink(), "an enabled config must be a symlink"
@@ -153,14 +150,15 @@ def enable(relative_path: str):
     source_root = DOTFILES / Path(relative_path)
     assert source_root.exists(), "config not found"
 
-    target = HOME / source_root.relative_to(DOTFILES)
+    relative_source = source_root.relative_to(DOTFILES)
+    target = HOME / relative_source
 
-    if is_enabled(source_root):
+    if is_enabled(relative_source):
         print(f"config {relative_path} is already enabled")
         return
 
-    if is_ignored(str(source_root.relative_to(DOTFILES))):
-        print(f"confing {relative_path} is in .dotsignore")
+    if is_ignored(relative_source):
+        print(f"confing {relative_path} is in IGNORE_LIST, edit dots.py")
         return
 
     if target.exists():
@@ -182,15 +180,12 @@ class Key(IntEnum):
     SLASH = ord("/")
     COLON = ord(":")
     ESC = 27
-
     ENTER = 10
     ENTER2 = 13
     SPACE = ord(" ")
-
     BACKSPACE = KEY_BACKSPACE
     BACKSPACE2 = 127
     BACKSPACE3 = 8
-
     # curses navigation
     UP = KEY_UP
     DOWN = KEY_DOWN
@@ -216,8 +211,9 @@ def tui_render_selection(
     if selected >= len(configs):
         selected = max(0, len(configs) - 1)
 
-    for idx, (enabled, path) in enumerate(configs):
-        name = str(path.relative_to(DOTFILES))
+    max_rows = height - 3
+    for idx, (enabled, path) in enumerate(configs[:max_rows]):
+        name = str(path)
         status = "[X]" if enabled else "[ ]"
 
         if idx == selected:
@@ -243,16 +239,22 @@ def is_valid_pattern_key(key: int):
 
 
 def tui(window: Window):
-    curs_set(0)  # no cursor
+    try:
+        curs_set(0)  # no cursor
+    except curses_error:
+        pass
 
     slash_search: Pattern | None = None
+    slash_search_text = ""
     selected = 0
     selected_before_slash = 0
     filter_mode = -1
 
     while True:
         height, _ = window.getmaxyx()
-        window.addstr(0, 0, " Toggle dotfiles (Enter = toggle, q = quit, / = filter)")
+        window.addstr(
+            0, 0, " Toggle dotfiles (Space, Enter = toggle, q = quit, / = filter)"
+        )
 
         configs = tui_render_selection(window, selected, slash_search)
 
@@ -266,24 +268,25 @@ def tui(window: Window):
         configs = tui_render_selection(window, selected, slash_search)
 
         # filter mode
-        if selected == filter_mode and is_valid_pattern_key:
-            current = str(slash_search.pattern) if slash_search is not None else ""
+        if selected == filter_mode and is_valid_pattern_key(key):
+            current = slash_search_text
             if is_backspace_key(key):
                 current = current[:-1]
-                slash_search = re_compile(current)
             else:
-                slash_search = re_compile(
-                    current + chr(key)
-                )  # compile pattern with re module
+                current = current + chr(key)
+            slash_search_text = current
+            try:
+                slash_search = re_compile(current) if current else None
+            except ReError:
+                # Keep the raw input visible while treating invalid regex as no filter.
+                slash_search = None
 
         window.move(height - 1, 0)
         window.clrtoeol()
-        if slash_search is not None:
+        if slash_search_text:
             block = "█" if selected == filter_mode else ""
             try:
-                window.addstr(
-                    height - 1, 0, f":{slash_search.pattern}{block}"
-                )  # display filter
+                window.addstr(height - 1, 0, f"/{slash_search_text}{block}")
             except Exception:
                 pass
 
@@ -305,8 +308,8 @@ def tui(window: Window):
                         enable(str(path))
 
             case Key.SLASH | Key.COLON:
-                current = slash_search.pattern if slash_search is not None else ""
-                window.addstr(height - 1, 0, f":{current}█")  # display filter
+                current = slash_search_text
+                window.addstr(height - 1, 0, f"/{current}█")  # display filter
                 selected_before_slash = selected
                 selected = filter_mode  # select none
                 continue
@@ -333,13 +336,18 @@ def main():
     parser.add_argument(
         "--disable", metavar="NAME", help="Disable (removes symlink in the system)"
     )
+    parser.add_argument(
+        "--doctor",
+        action="store_true",
+        help="Validate .dots_rules.json",
+    )
 
     args = parser.parse_args()
 
     if args.list:
         for enabled, path in itr_dotfiles():
             status = "[X]" if enabled else "[ ]"
-            print(f"\t{status} {path.relative_to(DOTFILES)}")
+            print(f"\t{status} {path}")
         return
 
     if args.enable:
@@ -348,6 +356,10 @@ def main():
 
     if args.disable:
         disable(args.disable)
+        return
+
+    if args.doctor:
+        print("validating...")
         return
 
 

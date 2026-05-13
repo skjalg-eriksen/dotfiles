@@ -7,7 +7,7 @@ It handles:
 - **Symlink-based dotfiles**
 - **Automatic backups** (`file → file.bak`)
 - **Directory-level installs for `.config/*`**
-- **Regex-based `.dotsignore`**
+- **Built-in ignore rules**
 - **Enable/disable commands**
 - **Optional TUI selector**
 
@@ -38,9 +38,9 @@ dots --list
 Example:
 
 ```
-[ENABLED]   .tmux.conf
-[DISABLED]  .zshrc
-[ENABLED]   .config/nvim
+[X]   .tmux.conf
+[ ]  .zshrc
+[X]   .config/nvim
 ```
 
 ---
@@ -81,7 +81,9 @@ TUI features:
 
 - interactive checklist  
 - toggle with `<enter>`, `<space>`
-- search with `/`  
+- regex filter with `/` or `:`  
+- finish filtering with `<enter>` or `<esc>`
+- invalid regex stays visible without crashing the TUI
 - quit with `q`
 
 ---
@@ -90,12 +92,13 @@ TUI features:
 
 The tool walks the repository and treats paths as configuration items.
 
-### Folder-level configs
+### Directory-level configs
 
-Directories under:
+Directory-level configs are defined in `DIR_MODULES` at the top of `dots.py`
 
 ```
-./.config/*
+# list of paths that will be symlinked as modules
+DIR_MODULES = [".config/*", ".emacs.d"]
 ```
 
 are installed as **directory symlinks**, e.g.:
@@ -114,22 +117,14 @@ Everything else is installed as individual file symlinks, e.g.:
 
 ---
 
-# 🚫 Ignoring files: `.dotsignore`
+# 🚫 Ignored paths
 
-Place a `.dotsignore` file in the repository containing **regex patterns**, one per line.
-
-Example:
+The scanner skips a paths defined in `IGNORE_RULES` at the top of `dots.py`.
 
 ```
-# ignore the manager itself
-dots.py
-\.dotsignore
-
-# ignore custom private files
-private/.*
+# list of ignored paths
+IGNORE_RULES = [".git", ".gitignore", "README.md", "dots.py"]
 ```
-
-Paths matching any pattern are skipped during scanning.
 
 ---
 
