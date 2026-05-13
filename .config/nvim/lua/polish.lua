@@ -26,3 +26,7 @@ vim.keymap.set({ "n", "i", "v" }, "<S-Down>",  "<Nop>")
 
 
 vim.keymap.set("t", "<C-[>", [[<C-\><C-n>]], { noremap = true })
+
+-- undo
+vim.keymap.set("n", "U", "<C-r>")
+
