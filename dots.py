@@ -44,7 +44,8 @@ DOTFILES = Path(__file__).resolve().parent
 
 def is_enabled(path: Path) -> bool:
     target = HOME / path
-    return target.is_symlink() and target.resolve() == path.resolve()
+    symlnk = DOTFILES / path
+    return target.is_symlink() and target.resolve() == symlnk
 
 
 def is_ignored(path: Path):
@@ -67,7 +68,6 @@ def itr_dotfiles() -> Iterator[Tuple[bool, Path]]:
     - `.config/<module>/` directories are treated as folder-level modules and
       will be symlinked as whole directories.
     - All other files in modules are treated as file-level links.
-    - Any paths listed in `.ignore` should be excluded from the result.
     """
 
     for root, dirs, files in walk(DOTFILES, topdown=True):
