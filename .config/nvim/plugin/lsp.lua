@@ -13,7 +13,6 @@ vim.lsp.enable({ 'lua_ls',
   'bashls',
 })
 
-
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('nm_lsp_attach', { clear = true }),
   callback = function(args)
@@ -33,5 +32,26 @@ vim.api.nvim_create_autocmd('LspAttach', {
     map('n', 'K', vim.lsp.buf.hover, 'Hover')
     map('n', '<leader>rn', vim.lsp.buf.rename, 'Rename')
     map('n', '<leader>a', vim.lsp.buf.code_action, 'Code action')
+  end,
+})
+
+-- completions
+vim.opt.completeopt = {
+  'menuone',
+  'noselect',
+  'popup',
+}
+
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('nm_lsp_completion', { clear = true }),
+  callback = function(args)
+    local client = assert(vim.lsp.get_client_by_id(args.data.client_id))
+    local bufnr = args.buf
+
+    if client:supports_method('textDocument/completion') then
+      vim.lsp.completion.enable(true, client.id, bufnr, {
+        autotrigger = true,
+      })
+    end
   end,
 })
