@@ -1,5 +1,6 @@
--- lsp/pyright.lua
+
 return {
+  -- npm install -g pyright
   settings = {
     python = {
       analysis = {
