@@ -33,10 +33,5 @@ vim.api.nvim_create_autocmd('LspAttach', {
     map('n', 'K', vim.lsp.buf.hover, 'Hover')
     map('n', '<leader>rn', vim.lsp.buf.rename, 'Rename')
     map('n', '<leader>a', vim.lsp.buf.code_action, 'Code action')
-    -- map('n', '<leader>f', function()
-    --   vim.lsp.buf.format({
-    --     async = true,
-    --   })
-    -- end, 'Format buffer')
   end,
 })
