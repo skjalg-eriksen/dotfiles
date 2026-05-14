@@ -7,16 +7,27 @@ vim.pack.add({
 require('nvim-treesitter').setup()
 
 local parsers = {
+  -- nvim
   'lua',
   'vim',
   'vimdoc',
+
+  -- languages
   'python',
-  'markdown',
-  'markdown_inline',
+  -- 'haskell', -- crashes
+  'c_sharp',
+  'typescript',
+  'tsx',
+  'javascript',
   'bash',
+
+  -- misc 
+  'dockerfile',
   'json',
   'yaml',
   'toml',
+  'markdown',
+  'markdown_inline',
 }
 
 require('nvim-treesitter').install(parsers)
