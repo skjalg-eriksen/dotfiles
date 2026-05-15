@@ -40,7 +40,7 @@ conform.setup({
   end,
 })
 
-vim.keymap.set('n', '<leader>f', function()
+vim.keymap.set('n', '<leader>lf', function()
   conform.format({
     async = true,
     lsp_format = 'fallback',

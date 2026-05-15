@@ -32,7 +32,7 @@ vim.api.nvim_create_autocmd({
   end,
 })
 
-vim.keymap.set('n', '<leader>l', function()
+vim.keymap.set('n', '<leader>ll', function()
   require('lint').try_lint()
 end, {
   desc = 'Lint current buffer',
