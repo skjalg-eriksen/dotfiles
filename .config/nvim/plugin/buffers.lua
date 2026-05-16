@@ -9,6 +9,24 @@ require('mini.pick').setup()
 require('mini.extra').setup()
 
 vim.keymap.set('n', '<leader>b', function()
+  local list_buffers = function()
+    local infos = vim.fn.getbufinfo({ buflisted = 1 })
+
+    table.sort(infos, function(a, b)
+      return a.lastused > b.lastused
+    end)
+
+    return vim.tbl_map(function(info)
+      local name = info.name ~= '' and vim.fn.fnamemodify(info.name, ':.') or '[No Name]'
+      local modified = info.changed == 1 and ' [+]' or ''
+
+      return {
+        bufnr = info.bufnr,
+        text = string.format('%d %s%s', info.bufnr, name, modified),
+      }
+    end, infos)
+  end
+
   local delete_cur = function()
     local current = MiniPick.get_picker_matches().current
 
@@ -37,7 +55,14 @@ vim.keymap.set('n', '<leader>b', function()
     return false
   end
 
-  MiniPick.builtin.buffers({}, {
+  MiniPick.start({
+    source = {
+      name = 'Buffers',
+      items = list_buffers,
+      match = function(stritems, inds, query)
+        return MiniPick.default_match(stritems, inds, query, { preserve_order = true })
+      end,
+    },
     mappings = {
       delete = {
         char = '<C-d>',
