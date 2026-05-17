@@ -5,8 +5,8 @@ local terminal = {
 
 local function is_terminal_buffer(bufnr)
   return bufnr ~= nil
-    and vim.api.nvim_buf_is_valid(bufnr)
-    and vim.bo[bufnr].buftype == 'terminal'
+      and vim.api.nvim_buf_is_valid(bufnr)
+      and vim.bo[bufnr].buftype == 'terminal'
 end
 
 local function find_terminal_window()
@@ -58,6 +58,14 @@ vim.keymap.set({ 'n', 't' }, '<F12>', function()
   toggle_terminal()
 end, {
   desc = 'Toggle terminal',
+})
+
+vim.keymap.set('t', '<C-[>', [[<C-\><C-n>]], {
+  desc = 'Exit terminal mode',
+})
+
+vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], {
+  desc = 'Exit terminal mode',
 })
 
 vim.keymap.set('n', '<leader>t', function()
