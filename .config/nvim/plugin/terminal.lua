@@ -23,6 +23,11 @@ local function find_terminal_window()
   return nil
 end
 
+local function focus_terminal_window(win)
+  vim.api.nvim_set_current_win(win)
+  vim.cmd('startinsert')
+end
+
 local function open_terminal()
   vim.cmd('botright split')
   local win = vim.api.nvim_get_current_win()
@@ -47,7 +52,12 @@ local function toggle_terminal()
   local win = find_terminal_window()
 
   if win ~= nil then
-    vim.api.nvim_win_hide(win)
+    if vim.api.nvim_get_current_win() == win then
+      vim.api.nvim_win_hide(win)
+    else
+      focus_terminal_window(win)
+    end
+
     return
   end
 
