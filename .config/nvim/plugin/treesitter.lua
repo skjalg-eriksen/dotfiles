@@ -45,6 +45,10 @@ vim.api.nvim_create_autocmd('FileType', {
       return
     end
 
+    if lang == 'c_sharp' then
+      return
+    end
+
     vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
   end,
 })
