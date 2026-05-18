@@ -1,17 +1,33 @@
 #!/usr/bin/dotnet run
-#:package Humanizer@2.14.1
+#:package Spectre.Console@0.55.2
+// #:package Spectre.Console.Cli@0.55.0
 
-using Humanizer;
+using Spectre.Console;
 
-var dotNet9Released = DateTimeOffset.Parse("2024-12-03");
-var since = DateTimeOffset.Now - dotNet9Released;
+// TODO: get all configurations at dots.cs file location
+// TODO: treat certain dirs as Module configs, like .config/*, or emacs.d 
+List<string> configs = ["Logging", "Caching", "Compression", "Authentication"];
 
-Console.WriteLine($"It has been {since.Humanize()} since .NET 9 was released.");
+// TODO: list the current state of the feature
+// TODO: if possible add filtering/fuzzy searching
+var selected = AnsiConsole.Prompt(
+    new MultiSelectionPrompt<string>()
+        .Title("Toggle [green]features[/]")
+        .AddChoices(configs)
+);
 
-foreach (var i in Enumerable.Range(1, 2))
+var enabledConfigs = 0;
+foreach (var path in configs)
 {
-    if (args.Length > 0)
-        Console.WriteLine($"{args[0]}");
-    Console.WriteLine(i);
+    var state = selected.Contains(path);
+    if (state) enabledConfigs++;
+
+    var enabled = Markup.Escape("[X]");
+    var disabled = Markup.Escape("[ ]");
+    string indicator = state ? $"[green]{enabled}[/]" : $"[gray]{disabled}[/]";
+
+    AnsiConsole.MarkupLine($"  {indicator}\t{path}");
 }
-// public void PrintMyMessage()
+
+AnsiConsole.MarkupLine($" [green]{enabledConfigs}[/] dot features enabled");
+AnsiConsole.MarkupLine($" [gray]{configs.Count-enabledConfigs}[/] dot features disabled");
