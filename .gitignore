@@ -12,6 +12,9 @@
 # Emacs auto-generated customizations
 .emacs.custom
 
+# nvim log
+.nvimlog
+
 # Emacs lock / backup files (created while editing in Emacs)
 .#*
 \#*#
