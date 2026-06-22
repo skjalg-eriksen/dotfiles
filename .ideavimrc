@@ -139,7 +139,7 @@ nnoremap <Space>ff :action GotoFile<CR>
 nnoremap <Space>fg :action GotoSymbol<CR> 
 nnoremap <Space>fa :action GotoAction<CR>
 nnoremap <Space>fr :action RecentFiles<CR>
-nnoremap <Space>fs :action SaveAll<CR>
+nnoremap <Space>w :action SaveAll<CR>
 nnoremap <Space>fR :action ReplaceInPath<CR>
 nnoremap <Space>fF :action FindInPath<CR>
 nnoremap <Space>fD :action ShowUsages<CR>
