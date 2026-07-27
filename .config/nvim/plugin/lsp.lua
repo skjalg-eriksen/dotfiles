@@ -11,6 +11,7 @@ vim.lsp.enable({ 'lua_ls',
   'ts_ls',
   'dockerls',
   'bashls',
+  'rust_analyzer',
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {

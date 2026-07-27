@@ -16,7 +16,8 @@ conform.setup({
     sh = { 'shfmt' },
     bash = { 'shfmt' },
     haskell = { 'fourmolu' },
-    cs = { 'csharpier' }
+    cs = { 'csharpier' },
+    rust = { 'rustfmt' },
   },
 
   format_on_save = function(bufnr)
