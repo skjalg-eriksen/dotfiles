@@ -4,6 +4,10 @@
       "rev": "9fd3b3a91b0981d60d2bc688c8cd1680320ee5de",
       "src": "https://github.com/stevearc/conform.nvim"
     },
+    "fff.nvim": {
+      "rev": "373d240b13c82940e65e92fec04bbce6493e4bd7",
+      "src": "https://github.com/dmtrKovalenko/fff.nvim"
+    },
     "kanagawa.nvim": {
       "rev": "bb85e4bfc8d89b0e62c8fa53ccdd13d12e2f77b3",
       "src": "https://github.com/rebelot/kanagawa.nvim"

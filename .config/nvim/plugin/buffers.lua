@@ -1,73 +1,44 @@
--- if true then return end
+vim.pack.add({ 'https://github.com/dmtrKovalenko/fff.nvim' })
 
 vim.pack.add({
-  'https://github.com/nvim-mini/mini.pick',
+ 'https://github.com/nvim-mini/mini.pick',
   'https://github.com/nvim-mini/mini.extra',
+'https://github.com/dmtrKovalenko/fff.nvim' })
+
+
+vim.api.nvim_create_autocmd('PackChanged', {
+  callback = function(ev)
+    local name, kind = ev.data.spec.name, ev.data.kind
+    if name == 'fff.nvim' and (kind == 'install' or kind == 'update') then
+      if not ev.data.active then vim.cmd.packadd('fff.nvim') end
+      require('fff.download').download_or_build_binary()
+    end
+  end,
 })
 
-require('mini.pick').setup()
-require('mini.extra').setup()
+require('fff').setup()
 
 vim.keymap.set('n', '<leader>b', function()
-  local list_buffers = function()
-    local infos = vim.fn.getbufinfo({ buflisted = 1 })
+  local infos = vim.fn.getbufinfo({ buflisted = 1 })
 
-    table.sort(infos, function(a, b)
-      return a.lastused > b.lastused
-    end)
+  table.sort(infos, function(a, b)
+    return a.lastused > b.lastused
+  end)
 
-    return vim.tbl_map(function(info)
-      local name = info.name ~= '' and vim.fn.fnamemodify(info.name, ':.') or '[No Name]'
-      local modified = info.changed == 1 and ' [+]' or ''
+  local items = vim.tbl_map(function(info)
+    local name = info.name ~= '' and vim.fn.fnamemodify(info.name, ':.') or '[No Name]'
+    local modified = info.changed == 1 and ' [+]' or ''
+    return string.format('%3d  %s%s', info.bufnr, name, modified)
+  end, infos)
 
-      return {
-        bufnr = info.bufnr,
-        text = string.format('%d %s%s', info.bufnr, name, modified),
-      }
-    end, infos)
-  end
-
-  local delete_cur = function()
-    local current = MiniPick.get_picker_matches().current
-
-    if current == nil or current.bufnr == nil then
-      return false
-    end
-
-    if vim.bo[current.bufnr].modified then
-      vim.notify('Buffer has unsaved changes', vim.log.levels.WARN)
-      return false
-    end
-
-    vim.api.nvim_buf_delete(current.bufnr, {})
-
-    local items = MiniPick.get_picker_items()
-    if items == nil then
-      return false
-    end
-
-    local new_items = vim.tbl_filter(function(item)
-      return item.bufnr ~= current.bufnr
-    end, items)
-
-    MiniPick.set_picker_items(new_items)
-
-    return false
-  end
-
-  MiniPick.start({
+  require('mini.pick').start({
     source = {
+      items = items,
       name = 'Buffers',
-      items = list_buffers,
-      match = function(stritems, inds, query)
-        return MiniPick.default_match(stritems, inds, query, { preserve_order = true })
+      choose = function(choice)
+        local bufnr = tonumber(choice:match('^%s*(%d+)'))
+        if bufnr then vim.cmd.buffer(bufnr) end
       end,
-    },
-    mappings = {
-      delete = {
-        char = '<C-d>',
-        func = delete_cur,
-      },
     },
   })
 end, {
@@ -75,19 +46,19 @@ end, {
 })
 
 vim.keymap.set('n', '<leader>ff', function()
-  MiniPick.builtin.files()
+  require('fff').find_files()
 end, {
   desc = 'Find files',
 })
 
 vim.keymap.set('n', '<leader>fw', function()
-  MiniPick.builtin.grep_live()
+  require('fff').live_grep()
 end, {
   desc = 'Live grep',
 })
 
-vim.keymap.set('n', '<leader>fh', function()
-  MiniPick.builtin.help()
+vim.keymap.set('n', '<leader>fz', function()
+  require('fff').live_grep({ grep = { modes = { 'fuzzy', 'plain' } } })
 end, {
-  desc = 'Help tags',
+  desc = 'Fuzzy grep',
 })
