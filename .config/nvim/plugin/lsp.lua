@@ -68,3 +68,9 @@ end, { expr = true })
 vim.keymap.set('i', '<CR>', function()
   return vim.fn.pumvisible() == 1 and '<C-y>' or '<CR>'
 end, { expr = true })
+
+vim.keymap.set('i', '<C-l>', function()
+  vim.lsp.completion.get()
+end, {
+  desc = 'Trigger completion',
+})
