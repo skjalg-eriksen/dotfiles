@@ -45,8 +45,9 @@ set notimeout " dont close which-key menu automatically
 
 :command! Delete rm %
 
-""nnoremap ]] }
-"" nnoremap [[ {
+" Jump between paragraphs with Shift+J/K in normal mode.
+nnoremap J }
+nnoremap K {
 
 "" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
 "" Map \r to the Reformat Code action
