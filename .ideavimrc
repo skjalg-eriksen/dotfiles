@@ -7,6 +7,9 @@ set smartcase
 " set guicursor
 set showmode
 
+set easymotion
+nmap s <Plug>(easymotion-s)
+ 
 " -- Suggested options --
 " Show a few lines of context around the cursor. Note that this makes the
 " text scroll if you mouse-click near the start or end of the window.
@@ -32,6 +35,10 @@ autocmd FileType csharp,c,cpp,java setlocal commentstring=//\ %s
 Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround'
 Plug 'dbakker/vim-paragraph-motion'
+
+" Enable EasyMotion and use s for its two-character jump.
+set easymotion
+nmap s <Plug>(easymotion-s)
 
 " -- Which Key Plugin --
 set which-key
