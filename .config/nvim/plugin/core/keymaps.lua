@@ -6,11 +6,6 @@ vim.keymap.set('n', '<leader>c', '<cmd>bd<cr>', {
   desc = 'Close buffer',
 })
 
--- files
-vim.keymap.set('n', '<leader>e', '<cmd>Explor<cr>', {
-  desc = 'open file explorer',
-})
-
 -- Editing
 vim.keymap.set('n', 'U', '<C-r>', {
   desc = 'Redo',
