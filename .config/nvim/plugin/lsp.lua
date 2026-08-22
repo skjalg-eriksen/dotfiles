@@ -11,6 +11,7 @@ vim.lsp.enable({ 'lua_ls',
   'ts_ls',
   'dockerls',
   'bashls',
+  'clangd',
   'rust_analyzer',
   'zls',
 })
