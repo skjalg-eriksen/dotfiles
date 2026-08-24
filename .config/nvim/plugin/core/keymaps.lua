@@ -2,7 +2,9 @@
 vim.keymap.set('n', '<leader>w', '<cmd>w<cr>', {
   desc = 'Save buffer',
 })
-vim.keymap.set('n', '<leader>c', '<cmd>bd<cr>', {
+
+
+vim.keymap.set('n', '<leader>q', '<cmd>bd<cr>', {
   desc = 'Close buffer',
 })
 
