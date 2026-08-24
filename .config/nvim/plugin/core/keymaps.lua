@@ -8,6 +8,10 @@ vim.keymap.set('n', '<leader>q', '<cmd>bd<cr>', {
   desc = 'Close buffer',
 })
 
+vim.keymap.set('n', '<leader>QQ', '<cmd>qall!<cr>', {
+  desc = 'Force quit Neovim',
+})
+
 -- Editing
 vim.keymap.set('n', 'U', '<C-r>', {
   desc = 'Redo',
