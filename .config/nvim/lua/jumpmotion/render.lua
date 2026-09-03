@@ -2,10 +2,10 @@ local M = {}
 
 M.namespace = vim.api.nvim_create_namespace('jumpmotion')
 
-function M.setup_highlights()
-  vim.api.nvim_set_hl(0, 'JumpMotionMatch', { link = 'Search', default = true })
-  vim.api.nvim_set_hl(0, 'JumpMotionLabel', { link = 'IncSearch', default = true })
-  vim.api.nvim_set_hl(0, 'JumpMotionDim', { link = 'Comment', default = true })
+function M.setup_highlights(highlights)
+  for group, spec in pairs(highlights) do
+    vim.api.nvim_set_hl(0, group, spec)
+  end
 end
 
 function M.clear(bufnr)
