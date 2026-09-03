@@ -16,15 +16,18 @@ end
 
 -- Find literal, possibly overlapping matches in the portion of the buffer that
 -- is actually on screen. Rows and columns use Neovim's 0-based coordinates.
-function M.find(bufnr, winid, query, cursor)
+function M.find(bufnr, winid, query, cursor, smartcase)
   if query == '' then return {} end
   local rows = visible_rows(winid)
   local matches = {}
+  local case_insensitive = smartcase and not query:find('[A-Z]')
+  local needle = case_insensitive and query:lower() or query
   for _, row in ipairs(rows) do
     local line = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)[1]
+    local haystack = case_insensitive and line:lower() or line
     local start = 1
     while true do
-      local from, to = string.find(line, query, start, true)
+      local from, to = string.find(haystack, needle, start, true)
       if not from then break end
       local col = from - 1
       if row ~= cursor[1] - 1 or col ~= cursor[2] then

@@ -9,12 +9,17 @@ end
 local function is_escape(key) return key == vim.keycode('<Esc>') or key == '\27' end
 local function is_label_mode_key(key) return key == vim.keycode('<CR>') or key == '\r' end
 local function is_printable(key) return #key > 0 and key:byte(1) >= 32 and not key:find('[\128-\255]') end
+local function smartcase_enabled(config)
+  if config.smartcase == nil then return vim.o.ignorecase and vim.o.smartcase end
+  return config.smartcase
+end
 
 function M.start(config)
   local winid, bufnr = vim.api.nvim_get_current_win(), vim.api.nvim_get_current_buf()
   local session = {
     bufnr = bufnr, winid = winid, original_cursor = vim.api.nvim_win_get_cursor(winid),
     query = '', matches = {}, labels = {}, assigned_labels = {}, label_input = nil,
+    smartcase = smartcase_enabled(config),
   }
   local function cleanup()
     render.clear(session.bufnr)
@@ -29,7 +34,7 @@ function M.start(config)
     end
   end
   local function refresh()
-    session.matches = matcher.find(session.bufnr, session.winid, session.query, session.original_cursor)
+    session.matches = matcher.find(session.bufnr, session.winid, session.query, session.original_cursor, session.smartcase)
     session.labels, session.assigned_labels = labeler.assign(session.matches, config.labels, session.assigned_labels)
     render.draw(session.bufnr, session.matches, session.labels)
   end
@@ -58,7 +63,7 @@ function M.start(config)
         else
           -- v1 ambiguity policy, isolated here: a viable refinement wins.
           local candidate = session.query .. key
-          local candidate_matches = matcher.find(session.bufnr, session.winid, candidate, session.original_cursor)
+          local candidate_matches = matcher.find(session.bufnr, session.winid, candidate, session.original_cursor, session.smartcase)
           if #candidate_matches > 0 then
             session.query, session.matches = candidate, candidate_matches
             session.labels, session.assigned_labels = labeler.assign(session.matches, config.labels, session.assigned_labels)
