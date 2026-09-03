@@ -18,11 +18,16 @@ function M.draw(bufnr, matches, labels)
     vim.api.nvim_buf_set_extmark(bufnr, M.namespace, target.row, target.col, {
       end_col = target.end_col, hl_group = 'JumpMotionMatch', priority = 200,
     })
+    local badge = '[' .. labels[target.id] .. ']'
+    -- A fixed window-column badge overlays instead of inserting text, so a
+    -- dense set of matches cannot reflow source lines. Prefer the columns just
+    -- left of the match; at column zero it overlays the match's beginning.
+    local match_win_col = vim.fn.virtcol({ target.row + 1, target.col + 1 }) - 1
+    local badge_win_col = math.max(0, match_win_col - vim.fn.strdisplaywidth(badge))
     vim.api.nvim_buf_set_extmark(bufnr, M.namespace, target.row, target.col, {
-      -- Inline text at the match start places the badge to its left. It is
-      -- legible at end-of-line and leaves the remaining query text visible.
-      virt_text = { { '[' .. labels[target.id] .. ']', 'JumpMotionLabel' } },
-      virt_text_pos = 'inline',
+      virt_text = { { badge, 'JumpMotionLabel' } },
+      virt_text_pos = 'overlay',
+      virt_text_win_col = badge_win_col,
       priority = 201,
     })
   end
