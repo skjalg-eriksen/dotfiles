@@ -1,7 +1,7 @@
--- if true then return end
+if true then return end
 
 vim.pack.add({
--- 'https://github.com/ggandor/leap.nvim'
+  -- 'https://github.com/ggandor/leap.nvim'
   'https://codeberg.org/andyg/leap.nvim',
 })
 
