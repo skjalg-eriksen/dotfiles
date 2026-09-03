@@ -21,8 +21,9 @@ function M.draw(bufnr, matches, labels)
     vim.api.nvim_buf_set_extmark(bufnr, M.namespace, target.row, target.col, {
       -- Inline text at the match start places the badge to its left. It is
       -- legible at end-of-line and leaves the remaining query text visible.
-      virt_text = { { ' [' .. labels[target.id] .. '] ', 'JumpMotionLabel' } },
-      virt_text_pos = 'inline', priority = 201,
+      virt_text = { { '[' .. labels[target.id] .. ']', 'JumpMotionLabel' } },
+      virt_text_pos = 'inline',
+      priority = 201,
     })
   end
   -- getcharstr() keeps this Lua call on the stack. Force the decorations onto

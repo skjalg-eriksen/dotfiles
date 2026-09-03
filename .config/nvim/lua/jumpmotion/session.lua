@@ -7,6 +7,7 @@ local function is_backspace(key)
   return key == vim.keycode('<BS>') or key == vim.keycode('<C-h>') or key == '\b'
 end
 local function is_escape(key) return key == vim.keycode('<Esc>') or key == '\27' end
+local function is_label_mode_key(key) return key == vim.keycode('<CR>') or key == '\r' end
 local function is_printable(key) return #key > 0 and key:byte(1) >= 32 and not key:find('[\128-\255]') end
 
 function M.start(config)
@@ -38,8 +39,17 @@ function M.start(config)
       local key = vim.fn.getcharstr()
       if is_escape(key) then cancel(); return end
       if is_backspace(key) then
-        session.label_input = nil
-        if #session.query > 0 then session.query = session.query:sub(1, -2); refresh() end
+        if session.label_input ~= nil then
+          -- Backspace first leaves explicit label mode without changing query.
+          session.label_input = nil
+        elseif #session.query > 0 then
+          session.query = session.query:sub(1, -2)
+          refresh()
+        end
+      elseif is_label_mode_key(key) and #session.matches > 0 then
+        -- Explicit label mode resolves query/label collisions. An empty string
+        -- is intentional: the following printable key is label character one.
+        session.label_input = ''
       elseif is_printable(key) then
         if session.label_input then
           local target, has_prefix = labeler.target_for_input(session.matches, session.labels, session.label_input .. key)
