@@ -27,7 +27,9 @@ vim.pack.add({
   'https://github.com/tehdb/nvim-faker',
 })
 
-require('nvim-faker').setup()
+require('nvim-faker').setup({
+  use_global_package = true,
+})
 require('rest_auth').setup()
 
 require('kulala').setup({
