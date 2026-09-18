@@ -33,8 +33,7 @@ vim.api.nvim_create_autocmd('FileType', {
   group = rest_group,
   pattern = 'json',
   callback = function(args)
-    if vim.bo[args.buf].buftype == 'nofile'
-        and vim.api.nvim_buf_get_name(args.buf) == '' then
+    if vim.bo[args.buf].buftype == 'nofile' and vim.api.nvim_buf_get_name(args.buf) == '' then
       vim.bo[args.buf].formatprg = 'jq .'
     end
   end,
@@ -54,5 +53,8 @@ vim.api.nvim_create_autocmd('FileType', {
     map('<leader>rr', '<cmd>botright vertical Rest run<cr>', 'Run HTTP request')
     map('<leader>rl', '<cmd>botright vertical Rest last<cr>', 'Run last HTTP request')
     map('<leader>ro', '<cmd>botright vertical Rest open<cr>', 'Open HTTP response')
+    map('<leader>rv', function()
+      require('rest_auth').prompt_variable()
+    end, 'Set HTTP variable')
   end,
 })
