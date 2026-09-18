@@ -2,18 +2,39 @@ local M = {}
 
 local faker = require('nvim-faker.faker-cli')
 
-local faker_commands = {
-  ['$fake.adjective'] = 'word adjective',
-  ['$fake.firstName'] = 'person firstName',
-  ['$fake.noun'] = 'word noun',
-  ['$fake.sentence'] = 'lorem sentence',
-  ['$fake.title'] = 'lorem words 3',
-  ['$fake.verb'] = 'word verb',
-  ['$fake.word'] = 'word sample',
+local faker_providers = {
+  adjective = 'word adjective',
+  animal = 'animal type',
+  city = 'location city',
+  color = 'color human',
+  company = 'company name',
+  country = 'location country',
+  email = 'internet email',
+  firstName = 'person firstName',
+  fullName = 'person fullName',
+  jobTitle = 'person jobTitle',
+  lastName = 'person lastName',
+  noun = 'word noun',
+  petName = 'animal petName',
+  product = 'commerce productName',
+  sentence = 'lorem sentence',
+  streetAddress = 'location streetAddress',
+  title = 'lorem words 3',
+  url = 'internet url',
+  uuid = 'string uuid',
+  verb = 'word verb',
+  word = 'word sample',
 }
 
-local fake_names = vim.tbl_keys(faker_commands)
-table.sort(fake_names)
+local faker_commands = {}
+local faker_names = {}
+for name, command in pairs(faker_providers) do
+  local canonical_name = '$faker.' .. name
+  faker_commands[canonical_name] = command
+  faker_commands['$fake.' .. name] = command
+  table.insert(faker_names, canonical_name)
+end
+table.sort(faker_names)
 
 local function fake(command)
   local value, err = faker.execute_faker_cli_command(command)
@@ -80,7 +101,7 @@ end
 
 function M.completion_items(prefix)
   return vim
-    .iter(fake_names)
+    .iter(faker_names)
     :filter(function(name)
       return vim.startswith(name, prefix)
     end)
