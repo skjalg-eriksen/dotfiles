@@ -27,8 +27,21 @@ vim.pack.add({
 
 require('rest_auth').setup()
 
+local rest_group = vim.api.nvim_create_augroup('nm_rest', { clear = true })
+
 vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('nm_rest', { clear = true }),
+  group = rest_group,
+  pattern = 'json',
+  callback = function(args)
+    if vim.bo[args.buf].buftype == 'nofile'
+        and vim.api.nvim_buf_get_name(args.buf) == '' then
+      vim.bo[args.buf].formatprg = 'jq .'
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+  group = rest_group,
   pattern = 'http',
   callback = function(args)
     local function map(lhs, rhs, desc)
@@ -38,8 +51,8 @@ vim.api.nvim_create_autocmd('FileType', {
       })
     end
 
-    map('<leader>rr', '<cmd>Rest run<cr>', 'Run HTTP request')
-    map('<leader>rl', '<cmd>Rest last<cr>', 'Run last HTTP request')
-    map('<leader>ro', '<cmd>Rest open<cr>', 'Open HTTP response')
+    map('<leader>rr', '<cmd>botright vertical Rest run<cr>', 'Run HTTP request')
+    map('<leader>rl', '<cmd>botright vertical Rest last<cr>', 'Run last HTTP request')
+    map('<leader>ro', '<cmd>botright vertical Rest open<cr>', 'Open HTTP response')
   end,
 })
