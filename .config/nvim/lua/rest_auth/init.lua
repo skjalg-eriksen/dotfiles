@@ -56,6 +56,18 @@ function M.setup()
     end,
   })
 
+  vim.api.nvim_create_autocmd('TextChangedI', {
+    group = group,
+    pattern = '*.http',
+    callback = function(args)
+      vim.schedule(function()
+        if vim.api.nvim_get_current_buf() == args.buf and vim.api.nvim_get_mode().mode == 'i' then
+          fakes.complete()
+        end
+      end)
+    end,
+  })
+
   vim.api.nvim_create_autocmd('User', {
     group = group,
     pattern = 'RestRequestPre',
