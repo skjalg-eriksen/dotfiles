@@ -24,8 +24,10 @@ vim.g.rest_nvim = {
 vim.pack.add({
   'https://github.com/rest-nvim/rest.nvim',
   'https://github.com/mistweaverco/kulala.nvim',
+  'https://github.com/tehdb/nvim-faker',
 })
 
+require('nvim-faker').setup()
 require('rest_auth').setup()
 
 require('kulala').setup({
