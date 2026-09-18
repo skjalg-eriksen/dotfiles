@@ -6,30 +6,12 @@ local last_http_buffer
 local pending_captures = {}
 local session_variables = {}
 
-local fake_words = {
-  'amber',
-  'atlas',
-  'birch',
-  'coral',
-  'ember',
-  'fjord',
-  'harbor',
-  'indigo',
-  'meadow',
-  'summit',
-}
-
-local fake_first_names = {
-  'Ada',
-  'Amelia',
-  'Frida',
-  'Grace',
-  'Iris',
-  'Linus',
-  'Maya',
-  'Noah',
-  'Oscar',
-  'Sofia',
+local dictionary_words = vim.fn.readfile('/usr/share/dict/words')
+local first_names = vim.fn.readfile('/usr/share/dict/propernames')
+local wordnet_path = vim.fs.dirname(vim.fs.dirname(vim.uv.fs_realpath(vim.fn.exepath('wn'))))
+local wordnet_indexes = {
+  adjective = vim.fn.readfile(vim.fs.joinpath(wordnet_path, 'dict', 'index.adj')),
+  noun = vim.fn.readfile(vim.fs.joinpath(wordnet_path, 'dict', 'index.noun')),
 }
 
 local function fail(message)
@@ -164,6 +146,19 @@ local function random_item(values)
   return values[math.random(#values)]
 end
 
+local function random_word()
+  return random_item(dictionary_words)
+end
+
+local function random_wordnet_word(part)
+  while true do
+    local word = random_item(wordnet_indexes[part]):match('^(%S+) [an] ')
+    if word then
+      return word:gsub('_', ' ')
+    end
+  end
+end
+
 local function random_string(length)
   local chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
   local result = {}
@@ -187,14 +182,18 @@ end
 
 local function fake_value(name)
   if name == '$fake.word' then
-    return random_item(fake_words)
+    return random_word()
+  elseif name == '$fake.adjective' then
+    return random_wordnet_word('adjective')
+  elseif name == '$fake.noun' then
+    return random_wordnet_word('noun')
   elseif name == '$fake.firstName' then
-    return random_item(fake_first_names)
+    return random_item(first_names)
   elseif name == '$fake.sentence' or name == '$fake.title' then
     local count = name == '$fake.title' and 3 or 7
     local words = {}
     for _ = 1, count do
-      table.insert(words, random_item(fake_words))
+      table.insert(words, random_word())
     end
     local value = table.concat(words, ' ')
     return value:sub(1, 1):upper() .. value:sub(2) .. (name == '$fake.sentence' and '.' or '')
