@@ -23,9 +23,24 @@ vim.g.rest_nvim = {
 
 vim.pack.add({
   'https://github.com/rest-nvim/rest.nvim',
+  'https://github.com/mistweaverco/kulala.nvim',
 })
 
 require('rest_auth').setup()
+
+require('kulala').setup({
+  global_keymaps = false,
+  kulala_keymaps = false,
+  lsp = {
+    enable = true,
+    filetypes = { 'http' },
+    keymaps = false,
+  },
+  treesitter = {
+    enable = true,
+    cli_path = 'tree-sitter',
+  },
+})
 
 local rest_group = vim.api.nvim_create_augroup('nm_rest', { clear = true })
 
