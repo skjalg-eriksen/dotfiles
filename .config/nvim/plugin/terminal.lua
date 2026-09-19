@@ -2,6 +2,8 @@ local terminal = {
   buf = nil,
   height = 12,
   tmux_pane = nil,
+  tmux_host_pane = nil,
+  tmux_host_window = nil,
 }
 
 local function in_tmux()
@@ -22,12 +24,38 @@ local function tmux_pane_exists(pane)
       and tmux({ 'display-message', '-p', '-t', pane, '#{pane_id}' }) == pane
 end
 
+local function tmux_pane_window(pane)
+  return tmux({ 'display-message', '-p', '-t', pane, '#{window_id}' })
+end
+
 local function toggle_tmux_terminal()
   if tmux_pane_exists(terminal.tmux_pane) then
-    tmux({ 'select-pane', '-t', terminal.tmux_pane })
+    tmux({
+      'set-option',
+      '-p',
+      '-t', terminal.tmux_pane,
+      '@nvimTerm', '1',
+    })
+
+    if tmux_pane_window(terminal.tmux_pane) == terminal.tmux_host_window then
+      -- tmux cannot hide a pane in-place, so keep the live shell in a parked
+      -- window until it is toggled open again.
+      tmux({ 'break-pane', '-d', '-s', terminal.tmux_pane })
+    elseif tmux_pane_exists(terminal.tmux_host_pane) then
+      tmux({
+        'join-pane',
+        '-v',
+        '-l', tostring(terminal.height),
+        '-s', terminal.tmux_pane,
+        '-t', terminal.tmux_host_pane,
+      })
+    end
+
     return
   end
 
+  terminal.tmux_host_pane = tmux({ 'display-message', '-p', '#{pane_id}' })
+  terminal.tmux_host_window = tmux_pane_window(terminal.tmux_host_pane)
   terminal.tmux_pane = tmux({
     'split-window',
     '-v',
@@ -35,6 +63,20 @@ local function toggle_tmux_terminal()
     '-P',
     '-F', '#{pane_id}',
   })
+
+  if terminal.tmux_pane ~= nil then
+    tmux({
+      'select-pane',
+      '-t', terminal.tmux_pane,
+      '-T', 'nvimTerm',
+    })
+    tmux({
+      'set-option',
+      '-p',
+      '-t', terminal.tmux_pane,
+      '@nvimTerm', '1',
+    })
+  end
 end
 
 local function is_terminal_buffer(bufnr)
