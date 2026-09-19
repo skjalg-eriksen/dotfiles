@@ -18,6 +18,7 @@ conform.setup({
     haskell = { 'fourmolu' },
     cs = { 'csharpier' },
     rust = { 'rustfmt' },
+    nix = { "nixfmt" },
     http = { 'kulala-fmt' },
   },
 
