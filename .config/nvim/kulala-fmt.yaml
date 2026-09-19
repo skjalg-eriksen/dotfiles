@@ -1,0 +1,7 @@
+defaults:
+  http_version: false
+body:
+  format:
+    indent: 2
+    line_width: 100
+    expand_tabs: true

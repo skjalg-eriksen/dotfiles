@@ -28,6 +28,7 @@ local parsers = {
   'toml',
   'markdown',
   'markdown_inline',
+  'http',
 }
 
 require('nvim-treesitter').install(parsers)

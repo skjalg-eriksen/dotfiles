@@ -18,6 +18,15 @@ conform.setup({
     haskell = { 'fourmolu' },
     cs = { 'csharpier' },
     rust = { 'rustfmt' },
+    http = { 'kulala-fmt' },
+  },
+
+  formatters = {
+    ['kulala-fmt'] = {
+      cwd = function()
+        return vim.fn.stdpath('config')
+      end,
+    },
   },
 
   format_on_save = function(bufnr)
