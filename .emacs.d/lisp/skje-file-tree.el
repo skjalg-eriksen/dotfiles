@@ -1,3 +1,4 @@
+;;; skje-file-tree.el --- file tree configuration -*- lexical-binding: t; -*-
 
 ;; (use-package treemacs
 ;;   :bind (("C-x t t" . treemacs)
