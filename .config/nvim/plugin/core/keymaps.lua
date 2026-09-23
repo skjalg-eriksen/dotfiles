@@ -44,16 +44,28 @@ local function enter_resize_mode()
   end
 
   resize_mode_active = true
+  local function has_neighbor(direction)
+    return vim.fn.winnr(direction) ~= vim.fn.winnr()
+  end
+
   local resize_keys = {
-    h = 'vertical resize -5',
-    j = 'resize +2',
-    k = 'resize -2',
-    l = 'vertical resize +5',
+    h = function()
+      return has_neighbor('h') and 'vertical resize +5' or 'vertical resize -5'
+    end,
+    j = function()
+      return has_neighbor('j') and 'resize +2' or 'resize -2'
+    end,
+    k = function()
+      return has_neighbor('k') and 'resize +2' or 'resize -2'
+    end,
+    l = function()
+      return has_neighbor('l') and 'vertical resize +5' or 'vertical resize -5'
+    end,
   }
 
-  for key, command in pairs(resize_keys) do
+  for key, resize in pairs(resize_keys) do
     vim.keymap.set('n', key, function()
-      vim.cmd(command)
+      vim.cmd(resize())
       show_resize_mode()
     end, { nowait = true })
   end
