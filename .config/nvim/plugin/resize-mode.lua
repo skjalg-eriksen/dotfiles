@@ -3,7 +3,7 @@ local resize_mode_active = false
 local function show_resize_mode()
 	vim.api.nvim_echo({
 		{ " RESIZE MODE ", "WarningMsg" },
-		{ " h/j/k/l resize  q/Esc/Enter/Space exit ", "ModeMsg" },
+		{ " h/j/k/l or arrows resize  q/Esc/Enter/Space exit ", "ModeMsg" },
 	}, false, {})
 end
 
@@ -13,7 +13,7 @@ local function exit_resize_mode()
 	end
 
 	resize_mode_active = false
-	for _, key in ipairs({ "h", "j", "k", "l", "q", "<Esc>", "<CR>", "<Space>" }) do
+	for _, key in ipairs({ "h", "j", "k", "l", "<Left>", "<Down>", "<Up>", "<Right>", "q", "<Esc>", "<CR>", "<Space>" }) do
 		vim.keymap.del("n", key)
 	end
 	vim.cmd('echo ""')
@@ -29,19 +29,28 @@ local function enter_resize_mode()
 		return vim.fn.winnr(direction) ~= vim.fn.winnr()
 	end
 
-	local resize_keys = {
-		h = function()
+	local resize_left = function()
 			return has_neighbor("h") and "vertical resize +5" or "vertical resize -5"
-		end,
-		j = function()
+		end
+	local resize_down = function()
 			return has_neighbor("j") and "resize +2" or "resize -2"
-		end,
-		k = function()
+		end
+	local resize_up = function()
 			return has_neighbor("k") and "resize +2" or "resize -2"
-		end,
-		l = function()
+		end
+	local resize_right = function()
 			return has_neighbor("l") and "vertical resize +5" or "vertical resize -5"
-		end,
+		end
+
+	local resize_keys = {
+		h = resize_left,
+		["<Left>"] = resize_left,
+		j = resize_down,
+		["<Down>"] = resize_down,
+		k = resize_up,
+		["<Up>"] = resize_up,
+		l = resize_right,
+		["<Right>"] = resize_right,
 	}
 
 	for key, resize in pairs(resize_keys) do
