@@ -72,6 +72,10 @@
       "rev": "b73018b75affd13fa38e2fc94ef753b465f770d7",
       "src": "https://github.com/stevearc/oil.nvim"
     },
+    "orgmode": {
+      "rev": "2f650b2fa0dc80d399093d35fb25232f96ad16d6",
+      "src": "https://github.com/nvim-orgmode/orgmode"
+    },
     "plantuml-syntax": {
       "rev": "9d4900aa16674bf5bb8296a72b975317d573b547",
       "src": "https://github.com/aklt/plantuml-syntax"
