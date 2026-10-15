@@ -11,7 +11,7 @@ require("orgmode").setup({
 		},
 		f = {
 			description = "Food diary",
-			template = "\n* %<%Y-%m-%d>\n- Breakfast :: %?\n- Lunch ::\n- Dinner ::\n- Snack ::\n- Meal ::",
+			template = "\n* %<%Y-%m-%d %A>\n- Breakfast :: %?\n- Lunch ::\n- Dinner ::\n- Snack ::\n- Meal ::",
 			target = "~/org/food-diary/food-diary.org",
 			prepend = true,
 		},
