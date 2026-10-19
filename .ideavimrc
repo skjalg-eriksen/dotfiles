@@ -127,6 +127,8 @@ nnoremap <Space>o :NERDTreeFocus<CR>
 nnoremap gI :action GotoImplementation<CR>
 nnoremap gi :action GotoImplementation<CR>
 
+
+
 " Map ] + e to jump to next error
 nnoremap ]e :action ReSharperGotoNextErrorInSolution<CR>
 " Map [ + e to jump to previous error
@@ -173,8 +175,6 @@ vnoremap > >gv
 nnoremap U <C-r>
 
 
-" open terminal with space + o + t
-noremap <Space>t :action ActivateTerminalToolWindow<CR>
 
 
 " exit to normal mode with jj in insert mode
@@ -206,8 +206,6 @@ vnoremap <Space>cf :action ReformatCode<CR>
 " format code with csharpier with space + c + s
 " nnoremap <Space>cs :action CSharpierReformatCode<CR>
 
-" open lazy git with space + g + g
-nnoremap <Space>gg :action LazyGit.Open<CR>
 
 " switch project with space + p + p
 nnoremap <Space>pp :action ManageRecentProjects<CR>
@@ -215,8 +213,19 @@ nnoremap <Space>pp :action ManageRecentProjects<CR>
 " enter distraction free mode
 nnoremap <Space>uz :action ToggleDistractionFreeMode<CR>
 
-" open diffs
-nnoremap <Space>gd :action Diff.ShowDiff<CR>
-
 " open Toggle breakpoint
 nnoremap <Space>bc :action ToggleLineBreakpoint<CR>
+
+" TOOL WINDOWS
+" open rider git tool window with space + t + l
+nnoremap <Space>tl :action ActivateVersionControlToolWindow<CR>
+" open rider git commit window with space + t + g
+nnoremap <Space>tg :action ActivateCommitToolWindow<CR>
+" open terminal with space + t + t
+nnoremap <Space>tt :action ActivateTerminalToolWindow<CR>
+" open database tool window with space + t + d
+nnoremap <Space>td :action ActivateDatabaseToolWindow<CR>
+" open nuget tool window with space + t + n
+nnoremap <Space>tn :action ActivateNuGetToolWindow<CR>
+" open test tool window with space + t + e
+nnoremap <Space>te :action ActivateUnitTestsToolWindow<CR>
