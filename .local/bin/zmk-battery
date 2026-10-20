@@ -1,0 +1,265 @@
+#!/usr/bin/env swift
+// macOS only: reads ZMK battery values through CoreBluetooth.
+
+import CoreBluetooth
+import Foundation
+
+private let batteryService = CBUUID(string: "180F")
+private let batteryLevel = CBUUID(string: "2A19")
+private let userDescription = CBUUID(string: "2901")
+
+private struct BatteryReading {
+    let label: String
+    let level: UInt8
+}
+
+private struct CharacteristicState {
+    let peripheralID: UUID
+    var level: UInt8?
+    var label: String?
+    var valueReceived = false
+    var descriptionResolved = false
+}
+
+private struct DeviceState {
+    let name: String
+    var pendingServices = 0
+    var pendingCharacteristics = 0
+    var readings: [BatteryReading] = []
+    var finished = false
+}
+
+private final class BatteryReader: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
+    private var central: CBCentralManager!
+    private var devices: [UUID: DeviceState] = [:]
+    private var peripherals: [UUID: CBPeripheral] = [:]
+    private var characteristics: [ObjectIdentifier: CharacteristicState] = [:]
+    private var didFinish = false
+
+    func start() {
+        central = CBCentralManager(delegate: self, queue: .main)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 12) { [weak self] in
+            self?.finish(timedOut: true)
+        }
+    }
+
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        guard central.state == .poweredOn else {
+            guard central.state != .unknown && central.state != .resetting else {
+                return
+            }
+            printError("Error: Bluetooth is \(Self.stateDescription(central.state)).")
+            finish(timedOut: false)
+            return
+        }
+
+        let peripherals = central.retrieveConnectedPeripherals(withServices: [batteryService])
+        guard !peripherals.isEmpty else {
+            printError("Error: no connected Bluetooth device exposes the Battery Service.")
+            finish(timedOut: false)
+            return
+        }
+
+        for peripheral in peripherals {
+            self.peripherals[peripheral.identifier] = peripheral
+            devices[peripheral.identifier] = DeviceState(
+                name: peripheral.name ?? "Unknown keyboard"
+            )
+            peripheral.delegate = self
+            central.connect(peripheral)
+        }
+    }
+
+    func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        peripheral.discoverServices([batteryService])
+    }
+
+    func centralManager(
+        _ central: CBCentralManager,
+        didFailToConnect peripheral: CBPeripheral,
+        error: Error?
+    ) {
+        finishDevice(peripheral.identifier)
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        guard error == nil, let services = peripheral.services?.filter({ $0.uuid == batteryService }) else {
+            finishDevice(peripheral.identifier)
+            return
+        }
+
+        devices[peripheral.identifier]?.pendingServices = services.count
+        guard !services.isEmpty else {
+            finishDevice(peripheral.identifier)
+            return
+        }
+
+        for service in services {
+            peripheral.discoverCharacteristics([batteryLevel], for: service)
+        }
+    }
+
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didDiscoverCharacteristicsFor service: CBService,
+        error: Error?
+    ) {
+        guard var device = devices[peripheral.identifier] else {
+            return
+        }
+        device.pendingServices -= 1
+
+        if error == nil {
+            for characteristic in service.characteristics ?? [] where characteristic.uuid == batteryLevel {
+                let key = ObjectIdentifier(characteristic)
+                characteristics[key] = CharacteristicState(
+                    peripheralID: peripheral.identifier
+                )
+                device.pendingCharacteristics += 1
+                peripheral.readValue(for: characteristic)
+                peripheral.discoverDescriptors(for: characteristic)
+            }
+        }
+
+        devices[peripheral.identifier] = device
+        completeDeviceIfReady(peripheral.identifier)
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        let key = ObjectIdentifier(characteristic)
+        guard var state = characteristics[key] else {
+            return
+        }
+        state.level = error == nil ? characteristic.value?.first : nil
+        state.valueReceived = true
+        characteristics[key] = state
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { [weak self] in
+            self?.resolveDescription(for: key)
+        }
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverDescriptorsFor characteristic: CBCharacteristic, error: Error?) {
+        let key = ObjectIdentifier(characteristic)
+        guard let state = characteristics[key] else {
+            return
+        }
+        guard error == nil,
+              let descriptor = characteristic.descriptors?.first(where: { $0.uuid == userDescription })
+        else {
+            return
+        }
+        characteristics[key] = state
+        peripheral.readValue(for: descriptor)
+    }
+
+    func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor descriptor: CBDescriptor, error: Error?) {
+        guard descriptor.uuid == userDescription,
+              let characteristic = descriptor.characteristic
+        else {
+            return
+        }
+        let key = ObjectIdentifier(characteristic)
+        guard var state = characteristics[key] else {
+            return
+        }
+        if error == nil, let bytes = descriptor.value as? Data {
+            state.label = String(data: bytes, encoding: .utf8)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        } else if error == nil, let text = descriptor.value as? String {
+            state.label = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        state.descriptionResolved = true
+        characteristics[key] = state
+        completeCharacteristic(key)
+    }
+
+    private func completeCharacteristic(_ key: ObjectIdentifier) {
+        guard let state = characteristics[key],
+              state.valueReceived,
+              state.descriptionResolved
+        else {
+            return
+        }
+        characteristics.removeValue(forKey: key)
+        guard var device = devices[state.peripheralID] else {
+            return
+        }
+        device.pendingCharacteristics -= 1
+        if let level = state.level {
+            device.readings.append(BatteryReading(label: state.label ?? "Central", level: level))
+        }
+        devices[state.peripheralID] = device
+        completeDeviceIfReady(state.peripheralID)
+    }
+
+    private func resolveDescription(for key: ObjectIdentifier) {
+        guard var state = characteristics[key] else {
+            return
+        }
+        state.descriptionResolved = true
+        characteristics[key] = state
+        completeCharacteristic(key)
+    }
+
+    private func completeDeviceIfReady(_ identifier: UUID) {
+        guard let device = devices[identifier],
+              device.pendingServices == 0,
+              device.pendingCharacteristics == 0
+        else {
+            return
+        }
+        finishDevice(identifier)
+    }
+
+    private func finishDevice(_ identifier: UUID) {
+        guard var device = devices[identifier], !device.finished else {
+            return
+        }
+        device.finished = true
+        devices[identifier] = device
+        if devices.values.allSatisfy(\.finished) {
+            finish(timedOut: false)
+        }
+    }
+
+    private func finish(timedOut: Bool) {
+        guard !didFinish else {
+            return
+        }
+        didFinish = true
+
+        let splitKeyboards = devices.values.filter { $0.readings.count > 1 }
+        let devicesToPrint = splitKeyboards.isEmpty ? Array(devices.values) : splitKeyboards
+        let readings = devicesToPrint.flatMap { device in
+            device.readings.map { reading in
+                ("\(device.name) \(reading.label)", reading.level)
+            }
+        }
+        if readings.isEmpty {
+            let suffix = timedOut ? " (timed out)" : ""
+            printError("Error: could not read any ZMK battery levels\(suffix).")
+            exit(1)
+        }
+        for (label, level) in readings.sorted(by: { $0.0 < $1.0 }) {
+            print("\(label): \(level)%")
+        }
+        exit(0)
+    }
+
+    private static func stateDescription(_ state: CBManagerState) -> String {
+        switch state {
+        case .unsupported: return "unsupported"
+        case .unauthorized: return "not authorized for this terminal"
+        case .poweredOff: return "powered off"
+        default: return "unavailable"
+        }
+    }
+}
+
+private func printError(_ message: String) {
+    FileHandle.standardError.write(Data("\(message)\n".utf8))
+}
+
+private let reader = BatteryReader()
+reader.start()
+dispatchMain()
