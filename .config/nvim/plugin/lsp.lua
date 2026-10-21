@@ -14,6 +14,7 @@ vim.lsp.enable({ 'lua_ls',
   'clangd',
   'rust_analyzer',
   'zls',
+  'marksman',
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
