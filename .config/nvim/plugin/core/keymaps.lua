@@ -11,6 +11,11 @@ vim.keymap.set("n", "<leader>QQ", "<cmd>qall!<cr>", {
 	desc = "Force quit Neovim",
 })
 
+-- User interface
+vim.keymap.set("n", "<leader>uw", "<cmd>setlocal wrap!<cr>", {
+	desc = "Toggle Wordwrap",
+})
+
 -- Editing
 vim.keymap.set("n", "U", "<C-r>", {
 	desc = "Redo",
