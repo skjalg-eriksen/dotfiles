@@ -15,7 +15,7 @@ This project is intentionally lightweight — no external dependencies except Py
 
 ---
 
-# 🚀 Installation
+## 🚀 Installation
 
 From inside the dotfiles repository, symlink `dots.py` using its **absolute path**:
 
@@ -27,9 +27,9 @@ Ensure `~/.local/bin` is in your `$PATH`.
 
 ---
 
-# 🛠️ Usage
+## 🛠️ Usage
 
-## 📋 List all configurations
+### 📋 List all configurations
 
 ```sh
 dots --list
@@ -37,7 +37,7 @@ dots --list
 
 Example:
 
-```
+```markdown
 [X]   .tmux.conf
 [ ]  .zshrc
 [X]   .config/nvim
@@ -45,31 +45,33 @@ Example:
 
 ---
 
-## ➕ Enable a configuration
+### ➕ Enable a configuration
 
 ```sh
 dots --enable .tmux.conf
 ```
 
 This will:  
+
 - back up any existing file in your home directory  
 - create the symlink to the config inside your dotfile repo  
 
 ---
 
-## ➖ Disable a configuration
+### ➖ Disable a configuration
 
 ```sh
 dots --disable .tmux.conf
 ```
 
 This will:  
+
 - remove the symlink  
 - restore any `*.bak` backup file  
 
 ---
 
-## 🎛️ TUI Mode
+### 🎛️ TUI Mode
 
 Running `dots` with **no arguments** launches the interactive TUI:
 
@@ -88,7 +90,7 @@ TUI features:
 
 ---
 
-# 📁 How Dotfiles Are Detected
+## 📁 How Dotfiles Are Detected
 
 The tool walks the repository and treats paths as configuration items.
 
@@ -96,39 +98,39 @@ The tool walks the repository and treats paths as configuration items.
 
 Directory-level configs are defined in `DIR_MODULES` at the top of `dots.py`
 
-```
+```python
 # list of paths that will be symlinked as modules
 DIR_MODULES = [".config/*", ".emacs.d"]
 ```
 
 are installed as **directory symlinks**, e.g.:
 
-```
+```sh
 ~/.config/nvim → <repo>/.config/nvim
 ```
 
-### File-level configs
+#### File-level configs
 
 Everything else is installed as individual file symlinks, e.g.:
 
-```
+```sh
 <repo>/.tmux.conf → ~/.tmux.conf
 ```
 
 ---
 
-# 🚫 Ignored paths
+## 🚫 Ignored paths
 
 The scanner skips a paths defined in `IGNORE_RULES` at the top of `dots.py`.
 
-```
-# list of ignored paths
+```python
+## list of ignored paths
 IGNORE_RULES = [".git", ".gitignore", "README.md", "dots.py"]
 ```
 
 ---
 
-# 🔍 Enabled/Disabled Detection
+## 🔍 Enabled/Disabled Detection
 
 A configuration is considered **enabled** when:
 
