@@ -20,6 +20,7 @@ conform.setup({
     rust = { 'rustfmt' },
     nix = { "nixfmt" },
     http = { 'kulala-fmt' },
+    markdown = { 'prettierd', 'prettier', stop_after_first = true },
   },
 
   formatters = {

@@ -14,6 +14,8 @@ lint.linters_by_ft = {
   sh = { 'shellcheck' },
   bash = { 'shellcheck' },
 
+  markdown = { 'markdownlint-cli2' },
+
   -- haskell = { 'hlint' },
 }
 
