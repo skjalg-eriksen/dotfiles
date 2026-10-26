@@ -77,3 +77,12 @@ vim.keymap.set('i', '<C-l>', function()
 end, {
   desc = 'Trigger completion',
 })
+
+vim.keymap.set("n", "<leader>cc", function()
+  local cmd = vim.fn.input("Compile: ", vim.bo.makeprg)
+  if cmd == "" then return end
+
+  vim.bo.makeprg = cmd
+  vim.cmd("silent make!")
+  vim.cmd("copen")
+end, { desc = "Compile" })
