@@ -26,3 +26,6 @@
 # Python
 __pycache__/
 *.pyc
+
+# zvec-grep index
+.zvec-grep
