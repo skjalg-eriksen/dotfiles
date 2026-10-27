@@ -74,4 +74,8 @@ if [[ "${installed_tree_sitter_version}" != "${TREE_SITTER_CLI_VERSION}" ]]; the
   fi
 fi
 
-./dots.py --enable .config/nvim
+nvim --headless --clean \
+  '+lua vim.pack.add({ "https://github.com/dmtrKovalenko/fff.nvim" })' \
+  '+packadd fff.nvim' \
+  '+lua require("fff.download").download_or_build_binary()' \
+  '+qa'
