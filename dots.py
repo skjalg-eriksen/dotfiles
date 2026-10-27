@@ -34,7 +34,14 @@ from sys import argv
 from typing import Iterator, List, Tuple
 
 # list of ignored paths
-IGNORE_RULES = [".git", ".gitignore", "README.md", "dots.py", "__pycache__"]
+IGNORE_RULES = [
+    ".zvec-grep",
+    ".git",
+    ".gitignore",
+    "README.md",
+    "dots.py",
+    "__pycache__",
+]
 # list of paths that will be symlinked as modules
 DIR_MODULES = [".config/*", ".emacs.d"]
 
