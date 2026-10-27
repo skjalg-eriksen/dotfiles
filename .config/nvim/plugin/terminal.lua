@@ -159,7 +159,7 @@ vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], {
   desc = 'Exit terminal mode',
 })
 
-vim.keymap.set('n', '<leader>t', function()
+vim.keymap.set('n', '<leader>tt', function()
   toggle_terminal()
 end, {
   desc = 'Toggle terminal',

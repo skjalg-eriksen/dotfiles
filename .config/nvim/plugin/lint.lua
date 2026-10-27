@@ -30,11 +30,19 @@ vim.api.nvim_create_autocmd({
 }, {
   group = lint_augroup,
   callback = function()
+    if vim.g.nm_language_analysis_enabled == false then
+      return
+    end
+
     require('lint').try_lint()
   end,
 })
 
 vim.keymap.set('n', '<leader>ll', function()
+  if vim.g.nm_language_analysis_enabled == false then
+    return
+  end
+
   require('lint').try_lint()
 end, {
   desc = 'Lint current buffer',

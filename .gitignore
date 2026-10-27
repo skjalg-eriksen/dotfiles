@@ -29,3 +29,6 @@ __pycache__/
 
 # zvec-grep index
 .zvec-grep
+
+# macos
+.DS_Store

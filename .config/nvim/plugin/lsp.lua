@@ -4,7 +4,8 @@ vim.pack.add({
   'https://github.com/neovim/nvim-lspconfig',
 })
 
-vim.lsp.enable({ 'lua_ls',
+local lsp_servers = {
+  'lua_ls',
   'pyright',
   'hls',
   'csharp_ls',
@@ -15,6 +16,22 @@ vim.lsp.enable({ 'lua_ls',
   'rust_analyzer',
   'zls',
   'marksman',
+}
+
+vim.lsp.enable(lsp_servers)
+
+vim.keymap.set('n', '<leader>lt', function()
+  local enabled = vim.g.nm_language_analysis_enabled ~= false
+  vim.g.nm_language_analysis_enabled = not enabled
+  vim.diagnostic.enable(not enabled)
+  vim.lsp.enable(lsp_servers, not enabled)
+
+  vim.notify(
+    ('Language analysis %s'):format(enabled and 'disabled' or 'enabled'),
+    vim.log.levels.INFO
+  )
+end, {
+  desc = 'Toggle language analysis',
 })
 
 vim.api.nvim_create_autocmd('LspAttach', {
