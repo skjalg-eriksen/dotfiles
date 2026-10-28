@@ -4,6 +4,8 @@ vim.pack.add({
   'https://github.com/neovim/nvim-lspconfig',
 })
 
+vim.lsp.config('yamlls', dofile(vim.fs.joinpath(vim.fn.stdpath('config'), 'lsp', 'yamlls.lua')))
+
 local lsp_servers = {
   'lua_ls',
   'pyright',
@@ -16,6 +18,7 @@ local lsp_servers = {
   'rust_analyzer',
   'zls',
   'marksman',
+  'yamlls',
 }
 
 vim.lsp.enable(lsp_servers)
