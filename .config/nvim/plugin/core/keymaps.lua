@@ -21,6 +21,10 @@ vim.keymap.set("n", "U", "<C-r>", {
 	desc = "Redo",
 })
 
+vim.keymap.set({ "n", "v" }, "+", "}", {
+	desc = "Next paragraph",
+})
+
 -- disable shift movement
 vim.keymap.set({ "n", "v", "i" }, "<S-Up>", "<Up>")
 vim.keymap.set({ "n", "v", "i" }, "<S-Down>", "<Down>")

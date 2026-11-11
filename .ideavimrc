@@ -54,6 +54,10 @@ set notimeout " dont close which-key menu automatically
 
 nnoremap J j
 
+" Jump to the next paragraph in normal and visual modes.
+nnoremap + }
+vnoremap + }
+
 " Jump between paragraphs with Shift+J/K in normal mode.
 " nnoremap J }
 " nnoremap K {
