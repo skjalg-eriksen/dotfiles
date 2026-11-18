@@ -7,6 +7,9 @@ set smartcase
 " set guicursor
 set showmode
 
+set ideaeditor+=main,chat,python,debug 
+imap jj <Esc>
+
 set easymotion
 nmap s <Plug>(easymotion-s)
  
@@ -225,6 +228,8 @@ nnoremap <Space>bc :action ToggleLineBreakpoint<CR>
 nnoremap <Space>tl :action ActivateVersionControlToolWindow<CR>
 " open rider git commit window with space + t + g
 nnoremap <Space>tg :action ActivateCommitToolWindow<CR>
+" open rider git lense window with space + t + G 
+nnoremap <Space>tG :action ActivateCommitToolWindow<CR>
 " open terminal with space + t + t
 nnoremap <Space>tt :action ActivateTerminalToolWindow<CR>
 " open database tool window with space + t + d
@@ -233,3 +238,5 @@ nnoremap <Space>td :action ActivateDatabaseToolWindow<CR>
 nnoremap <Space>tn :action ActivateNuGetToolWindow<CR>
 " open test tool window with space + t + e
 nnoremap <Space>te :action ActivateUnitTestsToolWindow<CR>
+" open plugin window with space + t + p
+nnoremap <Space>tp :action ActivatePluginsToolWindow<CR>
