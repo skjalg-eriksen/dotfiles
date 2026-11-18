@@ -26,3 +26,9 @@ vim.keymap.set('n', '<leader>e', function()
 end, {
   desc = 'Toggle file tree',
 })
+
+vim.keymap.set('n', '<leader>ug', function()
+  api.tree.toggle_gitignore_filter()
+end, {
+  desc = 'Toggle gitignored files',
+})
